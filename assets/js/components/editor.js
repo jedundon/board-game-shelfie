@@ -6,6 +6,58 @@ let isDrawing = false;
 let drawingRegion = null;
 let currentImageIndex = null;
 
+// Migration function: Convert old format to new shapes + regions model
+function migrateToNewFormat(oldAnnotations) {
+    const shapes = [];
+    const regions = [];
+    
+    if (!oldAnnotations || !oldAnnotations.regions) {
+        return { shapes, regions };
+    }
+    
+    oldAnnotations.regions.forEach((oldRegion, regionIndex) => {
+        // Create new region (metadata only)
+        const regionId = `region-${Date.now()}-${regionIndex}`;
+        const newRegion = {
+            id: regionId,
+            label: oldRegion.label || '',
+            description: oldRegion.description || '',
+            games: oldRegion.games || []
+        };
+        regions.push(newRegion);
+        
+        // Extract shapes from old region
+        if (oldRegion.shapes && Array.isArray(oldRegion.shapes)) {
+            // New format: region had shapes array
+            oldRegion.shapes.forEach((shape, shapeIndex) => {
+                shapes.push({
+                    id: `shape-${Date.now()}-${regionIndex}-${shapeIndex}`,
+                    imageIndex: oldRegion.imageIndex,
+                    x: shape.x,
+                    y: shape.y,
+                    width: shape.width,
+                    height: shape.height,
+                    regionId: regionId
+                });
+            });
+        } else if (oldRegion.x !== undefined && oldRegion.y !== undefined) {
+            // Old format: region had direct x/y/width/height
+            shapes.push({
+                id: `shape-${Date.now()}-${regionIndex}-0`,
+                imageIndex: oldRegion.imageIndex,
+                x: oldRegion.x,
+                y: oldRegion.y,
+                width: oldRegion.width,
+                height: oldRegion.height,
+                regionId: regionId
+            });
+        }
+    });
+    
+    console.log(`Migrated ${regions.length} regions and ${shapes.length} shapes`);
+    return { shapes, regions };
+}
+
 export async function renderEditor(shelfId, annotationId) {
     const main = document.getElementById('main');
     
@@ -23,16 +75,14 @@ export async function renderEditor(shelfId, annotationId) {
         const manifest = await loadShelfManifest(shelfId);
         
         // Load existing annotation if specified
-        let existingRegions = [];
+        let shapes = [];
+        let regions = [];
         if (annotationId) {
             try {
                 const annotations = await loadAnnotations(shelfId, annotationId);
-                // Add IDs to loaded regions (they don't have IDs in the JSON)
-                existingRegions = (annotations.regions || []).map((region, index) => ({
-                    id: `region-${Date.now()}-${index}`,
-                    ...region
-                }));
-                console.log(`Loaded ${existingRegions.length} existing regions from ${annotationId}`);
+                const migrated = migrateToNewFormat(annotations);
+                shapes = migrated.shapes;
+                regions = migrated.regions;
             } catch (error) {
                 console.warn(`Could not load annotation ${annotationId}:`, error);
             }
@@ -41,7 +91,8 @@ export async function renderEditor(shelfId, annotationId) {
         setState({ 
             currentShelf: manifest,
             currentAnnotationId: annotationId,
-            editingRegions: existingRegions
+            editingShapes: shapes,
+            editingRegions: regions
         });
         
         renderEditorUI(shelfId, manifest, annotationId);
@@ -93,9 +144,7 @@ function renderEditorUI(shelfId, manifest, annotationId) {
                 
                 <div class="editor-sidebar">
                     ${renderInstructions()}
-                    ${renderRegionEditor()}
-                    ${renderRegionList()}
-                    ${renderExportPanel(shelfId)}
+                    ${renderTabbedPanels(shelfId)}
                 </div>
             </div>
         </div>
@@ -107,8 +156,8 @@ function renderEditorImages(shelfId, manifest) {
         const imageUrl = `shelves/${shelfId}/${imagePath}`;
         return `
             <div class="editor-image-wrapper" data-image-index="${index}">
-                <div class="editor-image-label">Image ${index + 1}</div>
-                <img src="${imageUrl}" alt="Image ${index + 1}" draggable="false">
+                <div class="editor-image-label">Shelf ${index + 1}</div>
+                <img src="${imageUrl}" alt="Shelf ${index + 1}" draggable="false">
                 <div class="editor-overlay">
                     <svg class="editor-svg" preserveAspectRatio="xMidYMid meet"></svg>
                 </div>
@@ -147,28 +196,59 @@ function renderInstructions() {
             <h3>Instructions</h3>
             <div class="editor-instructions">
                 <ul>
-                    <li>Click and drag on an image to create a region</li>
-                    <li>Click a region to select and edit it</li>
-                    <li>Fill in the label and description</li>
-                    <li>Click Export when done</li>
+                    <li><strong>Draw:</strong> Click and drag to create shapes</li>
+                    <li><strong>Select:</strong> Click a shape or region to select it</li>
+                    <li><strong>Assign:</strong> Link shapes to regions to add labels</li>
+                    <li><strong>Export:</strong> Save your annotations when done</li>
                 </ul>
             </div>
         </div>
     `;
 }
 
-function renderRegionEditor() {
+function renderTabbedPanels(shelfId) {
     return `
         <div class="editor-panel">
-            <h3>Edit Region</h3>
-            <div id="region-editor-form">
-                <div class="region-editor-empty">
-                    Select a region to edit
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="switchTab('shapes')">
+                        Shapes <span id="shape-count-tab">(0)</span>
+                    </button>
+                    <button class="tab-button" onclick="switchTab('regions')">
+                        Regions <span id="region-count-tab">(0)</span>
+                    </button>
+                    <button class="tab-button" onclick="switchTab('editor')">
+                        Editor
+                    </button>
+                </div>
+                
+                <div class="tab-content">
+                    <div id="tab-shapes" class="tab-panel active">
+                        <div id="shape-list"></div>
+                    </div>
+                    
+                    <div id="tab-regions" class="tab-panel">
+                        <div id="region-list"></div>
+                        <button onclick="createNewRegion()" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);">
+                            + Create Region
+                        </button>
+                    </div>
+                    
+                    <div id="tab-editor" class="tab-panel">
+                        <div id="editor-form">
+                            <div class="editor-empty">
+                                Select a shape or region to edit
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        ${renderExportPanel(shelfId)}
     `;
 }
+
+
 
 function renderRegionList() {
     return `
@@ -226,19 +306,20 @@ function setupEditorEvents() {
         wrapper.addEventListener('mouseleave', () => handleMouseLeave());
     });
     
-    // Render any existing regions that were loaded
+    // Render any existing shapes and regions that were loaded
     const state = getState();
+    if (state.editingShapes && state.editingShapes.length > 0) {
+        updateAllShapes();
+    }
     if (state.editingRegions && state.editingRegions.length > 0) {
-        updateAllRegions();
         updateRegionList();
-        updateRegionCount();
     }
 }
 
 function handleMouseDown(e, wrapper, imageIndex) {
-    // Only start drawing if clicking directly on the image, not on existing regions
-    if (e.target.classList.contains('editor-region')) {
-        selectRegion(e.target.dataset.regionId);
+    // Check if clicking on an existing shape
+    if (e.target.classList.contains('editor-shape')) {
+        selectShape(e.target.dataset.shapeId);
         return;
     }
     
@@ -303,69 +384,32 @@ function handleMouseUp(e, wrapper, imageIndex) {
     
     const state = getState();
     
-    // Check if we're adding a shape to an existing region
-    if (addingShapeMode && state.selectedRegionId) {
-        const region = state.editingRegions.find(r => r.id === state.selectedRegionId);
-        if (region) {
-            // Normalize region to shapes array format
-            if (!region.shapes) {
-                region.shapes = [{
-                    type: 'rect',
-                    x: region.x,
-                    y: region.y,
-                    width: region.width,
-                    height: region.height
-                }];
-                delete region.x;
-                delete region.y;
-                delete region.width;
-                delete region.height;
-            }
-            
-            // Add new shape
-            region.shapes.push({
-                type: 'rect',
-                x: Math.round(x),
-                y: Math.round(y),
-                width: Math.round(width),
-                height: Math.round(height)
-            });
-            
-            addingShapeMode = false;
-            drawingRegion = null;
-            updateAllRegions();
-            renderRegionForm(region);
-            return;
-        }
-    }
-    
-    // Create new region
-    const regionId = `region-${Date.now()}`;
-    const newRegion = {
-        id: regionId,
+    // Create new unassigned shape
+    const shapeId = `shape-${Date.now()}`;
+    const newShape = {
+        id: shapeId,
         imageIndex,
         x: Math.round(x),
         y: Math.round(y),
         width: Math.round(width),
         height: Math.round(height),
-        label: '',
-        description: ''
+        regionId: null  // Unassigned
     };
     
-    state.editingRegions.push(newRegion);
-    setState({ editingRegions: state.editingRegions });
+    state.editingShapes = state.editingShapes || [];
+    state.editingShapes.push(newShape);
+    setState({ editingShapes: state.editingShapes });
     
-    addingShapeMode = false;
     drawingRegion = null;
-    updateAllRegions();
-    selectRegion(regionId);
+    updateAllShapes();
+    selectShape(shapeId);
 }
 
 function handleMouseLeave() {
     if (isDrawing) {
         isDrawing = false;
         drawingRegion = null;
-        updateAllRegions();
+        updateAllShapes();
     }
 }
 
@@ -398,7 +442,7 @@ function updateDrawingPreview(wrapper) {
     svg.innerHTML = existingRegions + preview;
 }
 
-function updateAllRegions() {
+function updateAllShapes() {
     const wrappers = document.querySelectorAll('.editor-image-wrapper');
     const state = getState();
     
@@ -406,54 +450,74 @@ function updateAllRegions() {
         const svg = wrapper.querySelector('.editor-svg');
         const imageIndex = parseInt(wrapper.dataset.imageIndex);
         
-        const regions = state.editingRegions
-            .filter(r => r.imageIndex === imageIndex)
-            .map(r => createRegionElement(r))
+        const shapesHtml = (state.editingShapes || [])
+            .filter(s => s.imageIndex === imageIndex)
+            .map(s => createShapeElement(s))
             .join('');
         
-        svg.innerHTML = regions;
+        svg.innerHTML = shapesHtml;
     });
     
+    updateShapeList();
     updateRegionList();
-    updateRegionCount();
 }
 
-function createRegionElement(region) {
-    const isSelected = getState().selectedRegionId === region.id;
+function createShapeElement(shape) {
+    const state = getState();
+    const isSelected = state.selectedShapeId === shape.id;
+    const isAssigned = shape.regionId !== null;
     
-    // Support both old format (x/y/width/height) and new format (shapes array)
-    const shapes = region.shapes || [{
-        type: 'rect',
-        x: region.x,
-        y: region.y,
-        width: region.width,
-        height: region.height
-    }];
+    // Highlight if this shape belongs to the selected region
+    const belongsToSelectedRegion = state.selectedRegionId && shape.regionId === state.selectedRegionId;
     
-    return shapes.map((shape, index) => `
+    // Get region for color coding if assigned
+    const region = isAssigned ? state.editingRegions?.find(r => r.id === shape.regionId) : null;
+    
+    return `
         <rect 
-            class="editor-region ${isSelected ? 'selected' : ''}"
-            data-region-id="${region.id}"
-            data-shape-index="${index}"
+            class="editor-shape ${isSelected ? 'selected' : ''} ${isAssigned ? 'assigned' : 'unassigned'} ${belongsToSelectedRegion ? 'region-highlighted' : ''}"
+            data-shape-id="${shape.id}"
+            data-region-id="${shape.regionId || ''}"
             x="${shape.x}" 
             y="${shape.y}" 
             width="${shape.width}" 
             height="${shape.height}"
         />
-    `).join('');
+    `;
+}
+
+function selectShape(shapeId) {
+    const state = getState();
+    const shape = (state.editingShapes || []).find(s => s.id === shapeId);
+    
+    if (!shape) return;
+    
+    setState({ selectedShapeId: shapeId, selectedRegionId: null });
+    updateAllShapes();
+    renderShapeEditor(shape);
+    
+    // Auto-switch to Editor tab
+    if (typeof window.switchTab === 'function') {
+        window.switchTab('editor');
+    }
 }
 
 function selectRegion(regionId) {
     const state = getState();
-    const region = state.editingRegions.find(r => r.id === regionId);
+    const region = (state.editingRegions || []).find(r => r.id === regionId);
     
     if (!region) return;
     
-    setState({ selectedRegionId: regionId });
+    setState({ selectedRegionId: regionId, selectedShapeId: null });
     
     // Update UI
-    updateAllRegions();
-    renderRegionForm(region);
+    updateAllShapes();
+    renderRegionEditor(region);
+    
+    // Auto-switch to Editor tab
+    if (typeof window.switchTab === 'function') {
+        window.switchTab('editor');
+    }
 }
 
 function renderRegionForm(region) {
@@ -511,26 +575,125 @@ function renderRegionForm(region) {
     setTimeout(() => renderShapeList(region), 0);
 }
 
-function updateRegionList() {
-    const list = document.getElementById('region-list');
+function updateShapeList() {
+    const list = document.getElementById('shape-list');
+    const countEl = document.getElementById('shape-count-tab');
     const state = getState();
+    const shapes = state.editingShapes || [];
     
-    if (state.editingRegions.length === 0) {
-        list.innerHTML = '<div class="region-list-empty">No regions created yet</div>';
+    if (countEl) {
+        countEl.textContent = `(${shapes.length})`;
+    }
+    
+    if (shapes.length === 0) {
+        list.innerHTML = '<div class="list-empty">No shapes drawn yet. Click and drag on an image to draw.</div>';
         return;
     }
     
-    const items = state.editingRegions.map((region, index) => {
+    // Group shapes by assignment
+    const unassigned = shapes.filter(s => !s.regionId);
+    const assigned = shapes.filter(s => s.regionId);
+    
+    // Group assigned shapes by region
+    const byRegion = {};
+    assigned.forEach(shape => {
+        if (!byRegion[shape.regionId]) {
+            byRegion[shape.regionId] = [];
+        }
+        byRegion[shape.regionId].push(shape);
+    });
+    
+    let html = '';
+    
+    // Unassigned shapes
+    if (unassigned.length > 0) {
+        html += `<div class="shape-group">
+            <div class="shape-group-header unassigned">Unassigned (${unassigned.length})</div>
+            ${unassigned.map(shape => createShapeListItem(shape)).join('')}
+        </div>`;
+    }
+    
+    // Assigned shapes grouped by region
+    Object.keys(byRegion).forEach(regionId => {
+        const region = state.editingRegions?.find(r => r.id === regionId);
+        const regionShapes = byRegion[regionId];
+        const regionLabel = region ? region.label || 'Unnamed Region' : 'Unknown Region';
+        
+        html += `<div class="shape-group">
+            <div class="shape-group-header assigned">${regionLabel} (${regionShapes.length})</div>
+            ${regionShapes.map(shape => createShapeListItem(shape)).join('')}
+        </div>`;
+    });
+    
+    list.innerHTML = html;
+}
+
+function createShapeListItem(shape) {
+    const state = getState();
+    const isSelected = state.selectedShapeId === shape.id;
+    const isAssigned = shape.regionId !== null;
+    
+    return `
+        <div class="shape-item ${isSelected ? 'selected' : ''} ${isAssigned ? 'assigned' : 'unassigned'}" 
+             onclick="selectShape('${shape.id}')">
+            <div class="shape-item-content">
+                <div class="shape-item-label">
+                    Shape on Shelf ${shape.imageIndex + 1}
+                </div>
+                <div class="shape-item-meta">
+                    ${shape.width} × ${shape.height}
+                </div>
+            </div>
+            ${!isAssigned ? `
+                <select onclick="event.stopPropagation();" 
+                        onchange="assignShapeToRegion('${shape.id}', this.value); this.value='';"
+                        class="shape-assign-dropdown"
+                        title="Assign to region">
+                    <option value="">Assign →</option>
+                    ${(state.editingRegions || []).map(r => 
+                        `<option value="${r.id}">${r.label || 'Unnamed Region'}</option>`
+                    ).join('')}
+                </select>
+            ` : `
+                <button onclick="event.stopPropagation(); unassignShape('${shape.id}')" 
+                        class="btn-icon" title="Unassign from region">
+                    ×
+                </button>
+            `}
+        </div>
+    `;
+}
+
+function updateRegionList() {
+    const list = document.getElementById('region-list');
+    const countEl = document.getElementById('region-count-tab');
+    const state = getState();
+    const regions = state.editingRegions || [];
+    
+    if (countEl) {
+        countEl.textContent = `(${regions.length})`;
+    }
+    
+    if (regions.length === 0) {
+        list.innerHTML = '<div class="list-empty">No regions created yet. Click + Create Region.</div>';
+        return;
+    }
+    
+    const items = regions.map((region, index) => {
         const isSelected = state.selectedRegionId === region.id;
+        const shapeCount = (state.editingShapes || []).filter(s => s.regionId === region.id).length;
+        const isEmpty = shapeCount === 0;
+        
         return `
-            <div class="region-item ${isSelected ? 'selected' : ''}" onclick="selectRegion('${region.id}')">
-                <div class="region-item-number">${index + 1}</div>
+            <div class="region-item ${isSelected ? 'selected' : ''} ${isEmpty ? 'empty' : ''}" 
+                 onclick="selectRegion('${region.id}')">
+                <div class="region-item-icon">${isEmpty ? '○' : '●'}</div>
                 <div class="region-item-content">
                     <div class="region-item-label">
-                        ${region.label || '<em>No label</em>'}
+                        ${region.label || '<em>Unnamed Region</em>'}
                     </div>
                     <div class="region-item-meta">
-                        Image ${region.imageIndex + 1}
+                        ${shapeCount} shape${shapeCount !== 1 ? 's' : ''}
                     </div>
                 </div>
             </div>
@@ -538,13 +701,6 @@ function updateRegionList() {
     }).join('');
     
     list.innerHTML = items;
-}
-
-function updateRegionCount() {
-    const count = document.getElementById('region-count');
-    if (count) {
-        count.textContent = getState().editingRegions.length;
-    }
 }
 
 // Global functions for inline event handlers
@@ -669,16 +825,63 @@ window.clearAllRegions = function() {
 
 window.exportAnnotations = function() {
     const state = getState();
+    const regions = state.editingRegions || [];
+    const shapes = state.editingShapes || [];
     
-    if (state.editingRegions.length === 0) {
+    if (regions.length === 0) {
         alert('No regions to export!');
         return;
     }
     
     // Validate all regions have labels
-    const missingLabels = state.editingRegions.filter(r => !r.label || r.label.trim() === '');
+    const missingLabels = regions.filter(r => !r.label || r.label.trim() === '');
     if (missingLabels.length > 0) {
         alert('All regions must have labels before exporting!');
+        return;
+    }
+    
+    // Convert to old format for viewer compatibility
+    const exportRegions = regions.map(region => {
+        const regionShapes = shapes.filter(s => s.regionId === region.id);
+        
+        // Get the first shape's imageIndex (all shapes for a region should be on same image ideally)
+        const imageIndex = regionShapes.length > 0 ? regionShapes[0].imageIndex : 0;
+        
+        if (regionShapes.length === 0) {
+            // Region with no shapes - skip it
+            return null;
+        } else if (regionShapes.length === 1) {
+            // Single shape - use old format (direct x/y/width/height)
+            const shape = regionShapes[0];
+            return {
+                imageIndex,
+                x: shape.x,
+                y: shape.y,
+                width: shape.width,
+                height: shape.height,
+                label: region.label,
+                description: region.description || '',
+                games: region.games || []
+            };
+        } else {
+            // Multiple shapes - use shapes array format
+            return {
+                imageIndex,
+                shapes: regionShapes.map(s => ({
+                    x: s.x,
+                    y: s.y,
+                    width: s.width,
+                    height: s.height
+                })),
+                label: region.label,
+                description: region.description || '',
+                games: region.games || []
+            };
+        }
+    }).filter(r => r !== null);  // Remove regions with no shapes
+    
+    if (exportRegions.length === 0) {
+        alert('No regions with shapes to export! Assign shapes to your regions first.');
         return;
     }
     
@@ -686,7 +889,7 @@ window.exportAnnotations = function() {
     const annotations = {
         version: '1.0',
         created: new Date().toISOString(),
-        regions: state.editingRegions.map(({ id, ...region }) => region)
+        regions: exportRegions
     };
     
     // Download file
@@ -701,7 +904,396 @@ window.exportAnnotations = function() {
     
     URL.revokeObjectURL(url);
     
-    alert('Annotations exported! Upload this file to your shelf\'s annotations folder.');
+    alert(`Exported ${exportRegions.length} region(s)! Upload this file to your shelf's annotations folder.`);
 };
 
+// Shape Editor
+function renderShapeEditor(shape) {
+    const form = document.getElementById('editor-form');
+    const state = getState();
+    const region = shape.regionId ? state.editingRegions?.find(r => r.id === shape.regionId) : null;
+    const regions = state.editingRegions || [];
+    
+    let html = `
+        <div class="shape-editor">
+            <h4>Shape on Shelf ${shape.imageIndex + 1}</h4>
+            <div class="form-group">
+                <label>Size:</label>
+                <p>${shape.width} × ${shape.height}</p>
+            </div>
+            <div class="form-group">
+                <label>Assignment:</label>
+                ${region ? `
+                    <p>Assigned to <strong>${region.label || 'Unnamed Region'}</strong></p>
+                    <button onclick="unassignShape('${shape.id}')" class="btn btn-secondary" style="width: 100%;">
+                        Unassign from Region
+                    </button>
+                ` : regions.length > 0 ? `
+                    <select onchange="assignShapeToRegion('${shape.id}', this.value)" 
+                            style="width: 100%; margin-bottom: var(--spacing-sm);">
+                        <option value="">Select a region...</option>
+                        ${regions.map(r => 
+                            `<option value="${r.id}">${r.label || 'Unnamed Region'}</option>`
+                        ).join('')}
+                    </select>
+                ` : `
+                    <p>No regions available. Create a region first.</p>
+                    <button onclick="createNewRegion()" class="btn btn-primary" style="width: 100%;">
+                        + Create Region
+                    </button>
+                `}
+            </div>
+            <div class="form-group">
+                <button onclick="deleteShape('${shape.id}')" class="btn btn-danger" style="width: 100%;">
+                    Delete Shape
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // If assigned to a region, show the region editor inline below
+    if (region) {
+        const shapes = (state.editingShapes || []).filter(s => s.regionId === region.id);
+        const gamesText = region.games ? region.games.join('\n') : '';
+        
+        html += `
+            <hr style="margin: var(--spacing-lg) 0; border: none; border-top: 2px solid var(--color-border);">
+            <div class="region-editor">
+                <h4>Edit Region: ${region.label || 'Unnamed Region'}</h4>
+                <div class="form-group">
+                    <label for="region-label">Label *</label>
+                    <input 
+                        type="text" 
+                        id="region-label" 
+                        value="${region.label || ''}" 
+                        onchange="updateRegionField('label', this.value)"
+                        placeholder="e.g., Horror Games">
+                </div>
+                <div class="form-group">
+                    <label for="region-description">Description</label>
+                    <textarea 
+                        id="region-description" 
+                        onchange="updateRegionField('description', this.value)"
+                        placeholder="Optional description"
+                        rows="3">${region.description || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="region-games">Games (one per line)</label>
+                    <textarea 
+                        id="region-games" 
+                        onchange="updateRegionGames(this.value)"
+                        placeholder="Enter game names"
+                        rows="5">${gamesText}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Shapes: ${shapes.length}</label>
+                    ${shapes.length > 1 ? `
+                        <div class="shape-mini-list">
+                            ${shapes.map(s => `
+                                <div class="shape-mini-item">
+                                    Shelf ${s.imageIndex + 1} (${s.width}×${s.height})
+                                    <button onclick="event.stopPropagation(); unassignShape('${s.id}')" 
+                                            class="btn-icon" title="Unassign">×</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : '<p class="text-muted">This is the only shape in this region</p>'}
+                </div>
+                <div class="form-group">
+                    <button onclick="linkShapeToRegion('${region.id}')" class="btn btn-secondary" style="width: 100%;">
+                        + Link Another Shape
+                    </button>
+                </div>
+                <div class="form-group">
+                    <button onclick="viewAllRegionShapes('${region.id}')" class="btn btn-secondary" style="width: 100%;">
+                        👁 View All Shapes
+                    </button>
+                </div>
+                <div class="form-group">
+                    <button onclick="deleteRegion('${region.id}')" class="btn btn-danger" style="width: 100%;">
+                        Delete Region
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    form.innerHTML = html;
+}
+
+// Region Editor
+function renderRegionEditor(region) {
+    const form = document.getElementById('editor-form');
+    const state = getState();
+    const shapes = (state.editingShapes || []).filter(s => s.regionId === region.id);
+    const gamesText = region.games ? region.games.join('\n') : '';
+    
+    form.innerHTML = `
+        <div class="region-editor">
+            <h4>Edit Region</h4>
+            <div class="form-group">
+                <label for="region-label">Label *</label>
+                <input 
+                    type="text" 
+                    id="region-label" 
+                    value="${region.label || ''}" 
+                    onchange="updateRegionField('label', this.value)"
+                    placeholder="e.g., Horror Games">
+            </div>
+            <div class="form-group">
+                <label for="region-description">Description</label>
+                <textarea 
+                    id="region-description" 
+                    onchange="updateRegionField('description', this.value)"
+                    placeholder="Optional description"
+                    rows="3">${region.description || ''}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="region-games">Games (one per line)</label>
+                <textarea 
+                    id="region-games" 
+                    onchange="updateRegionGames(this.value)"
+                    placeholder="Enter game names"
+                    rows="5">${gamesText}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Shapes: ${shapes.length}</label>
+                ${shapes.length > 0 ? `
+                    <div class="shape-mini-list">
+                        ${shapes.map(s => `
+                            <div class="shape-mini-item">
+                                Shelf ${s.imageIndex + 1} (${s.width}×${s.height})
+                                <button onclick="event.stopPropagation(); unassignShape('${s.id}')" 
+                                        class="btn-icon" title="Unassign">×</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : '<p class="text-muted">No shapes assigned</p>'}
+            </div>
+            <div class="form-group">
+                <button onclick="linkShapeToRegion('${region.id}')" class="btn btn-secondary" style="width: 100%;">
+                    + Link Existing Shape
+                </button>
+            </div>
+            <div class="form-group">
+                <button onclick="deleteRegion('${region.id}')" class="btn btn-danger" style="width: 100%;">
+                    Delete Region
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Tab switching
+window.switchTab = function(tabName) {
+    // Update buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`.tab-button[onclick="switchTab('${tabName}')"]`)?.classList.add('active');
+    
+    // Update panels
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.remove('active');
+    });
+    document.getElementById(`tab-${tabName}`)?.classList.add('active');
+};
+
+// Global functions for inline event handlers
+window.selectShape = selectShape;
 window.selectRegion = selectRegion;
+
+window.createNewRegion = function() {
+    const state = getState();
+    const regionId = `region-${Date.now()}`;
+    const newRegion = {
+        id: regionId,
+        label: '',
+        description: '',
+        games: []
+    };
+    
+    state.editingRegions = state.editingRegions || [];
+    state.editingRegions.push(newRegion);
+    setState({ editingRegions: state.editingRegions });
+    
+    updateRegionList();
+    selectRegion(regionId);
+};
+
+window.assignShapeToRegion = function(shapeId, regionId) {
+    if (!regionId) return;
+    
+    const state = getState();
+    const shape = state.editingShapes?.find(s => s.id === shapeId);
+    
+    if (shape) {
+        shape.regionId = regionId;
+        setState({ editingShapes: state.editingShapes });
+        updateAllShapes();
+        updateShapeList();
+        updateRegionList();
+        if (state.selectedShapeId === shapeId) {
+            renderShapeEditor(shape);
+        }
+    }
+};
+
+window.unassignShape = function(shapeId) {
+    const state = getState();
+    const shape = state.editingShapes?.find(s => s.id === shapeId);
+    
+    if (shape) {
+        shape.regionId = null;
+        setState({ editingShapes: state.editingShapes });
+        updateAllShapes();
+        updateShapeList();
+        updateRegionList();
+        if (state.selectedShapeId === shapeId) {
+            renderShapeEditor(shape);
+        }
+    }
+};
+
+window.deleteShape = function(shapeId) {
+    if (!confirm('Delete this shape?')) return;
+    
+    const state = getState();
+    state.editingShapes = (state.editingShapes || []).filter(s => s.id !== shapeId);
+    
+    setState({ 
+        editingShapes: state.editingShapes,
+        selectedShapeId: null
+    });
+    
+    updateAllShapes();
+    updateShapeList();
+    updateRegionList();
+    document.getElementById('editor-form').innerHTML = '<div class="editor-empty">Select a shape or region to edit</div>';
+};
+
+window.deleteRegion = function(regionId) {
+    const state = getState();
+    const shapesInRegion = (state.editingShapes || []).filter(s => s.regionId === regionId);
+    
+    let confirmed = false;
+    if (shapesInRegion.length > 0) {
+        const choice = confirm(`This region has ${shapesInRegion.length} shape(s).\n\nOK = Delete region only (shapes become unassigned)\nCancel = Don't delete`);
+        if (choice) {
+            // Unassign shapes
+            shapesInRegion.forEach(s => s.regionId = null);
+            confirmed = true;
+        }
+    } else {
+        confirmed = confirm('Delete this region?');
+    }
+    
+    if (confirmed) {
+        state.editingRegions = (state.editingRegions || []).filter(r => r.id !== regionId);
+        setState({ 
+            editingRegions: state.editingRegions,
+            editingShapes: state.editingShapes,
+            selectedRegionId: null
+        });
+        
+        updateAllShapes();
+        updateShapeList();
+        updateRegionList();
+        document.getElementById('editor-form').innerHTML = '<div class="editor-empty">Select a shape or region to edit</div>';
+    }
+};
+
+window.linkShapeToRegion = function(regionId) {
+    const state = getState();
+    const unassignedShapes = (state.editingShapes || []).filter(s => !s.regionId);
+    
+    if (unassignedShapes.length === 0) {
+        alert('No unassigned shapes available. Draw some shapes first, or unassign existing shapes.');
+        return;
+    }
+    
+    // Create a temporary dropdown dialog
+    const shapeOptions = unassignedShapes.map(s => 
+        `<option value="${s.id}">Shelf ${s.imageIndex + 1} - ${s.width}×${s.height}</option>`
+    ).join('');
+    
+    const dialog = document.createElement('div');
+    dialog.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000;';
+    dialog.innerHTML = `
+        <h3 style="margin-top: 0;">Link Shape to Region</h3>
+        <select id="shape-link-select" style="width: 100%; padding: 8px; margin: 10px 0;">
+            <option value="">Select a shape...</option>
+            ${shapeOptions}
+        </select>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button id="shape-link-ok" class="btn btn-primary" style="flex: 1;">Link</button>
+            <button id="shape-link-cancel" class="btn btn-secondary" style="flex: 1;">Cancel</button>
+        </div>
+    `;
+    
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999;';
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(dialog);
+    
+    const cleanup = () => {
+        document.body.removeChild(overlay);
+        document.body.removeChild(dialog);
+    };
+    
+    dialog.querySelector('#shape-link-ok').onclick = () => {
+        const shapeId = dialog.querySelector('#shape-link-select').value;
+        if (shapeId) {
+            const shape = unassignedShapes.find(s => s.id === shapeId);
+            if (shape) {
+                shape.regionId = regionId;
+                setState({ editingShapes: state.editingShapes });
+                updateAllShapes();
+                updateShapeList();
+                updateRegionList();
+                selectRegion(regionId);
+            }
+        }
+        cleanup();
+    };
+    
+    dialog.querySelector('#shape-link-cancel').onclick = cleanup;
+    overlay.onclick = cleanup;
+};
+
+window.updateRegionField = function(field, value) {
+    const state = getState();
+    const region = state.editingRegions?.find(r => r.id === state.selectedRegionId);
+    if (region) {
+        region[field] = value;
+        updateRegionList();
+    }
+};
+
+window.updateRegionGames = function(value) {
+    const state = getState();
+    const region = state.editingRegions?.find(r => r.id === state.selectedRegionId);
+    if (region) {
+        region.games = value
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+    }
+};
+
+window.viewAllRegionShapes = function(regionId) {
+    // Select the region to highlight all its shapes
+    selectRegion(regionId);
+    
+    // Scroll to the first shape's image if possible
+    const state = getState();
+    const shapes = (state.editingShapes || []).filter(s => s.regionId === regionId);
+    if (shapes.length > 0) {
+        const firstShape = shapes[0];
+        const wrapper = document.querySelector(`.editor-image-wrapper[data-image-index="${firstShape.imageIndex}"]`);
+        if (wrapper) {
+            wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+};
