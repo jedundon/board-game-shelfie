@@ -357,6 +357,7 @@ function selectRegion(regionId) {
 
 function renderRegionForm(region) {
     const form = document.getElementById('region-editor-form');
+    const gamesText = region.games ? region.games.join('\n') : '';
     
     form.innerHTML = `
         <div class="region-editor">
@@ -380,6 +381,16 @@ function renderRegionForm(region) {
                     maxlength="200"
                     oninput="updateRegionField('description', this.value)"
                 >${region.description || ''}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="region-games">Games (one per line)</label>
+                <textarea 
+                    id="region-games" 
+                    rows="6"
+                    placeholder="List games, one per line&#10;e.g.,&#10;Terraforming Mars&#10;Wingspan&#10;Splendor"
+                    oninput="updateRegionGames(this.value)"
+                >${gamesText}</textarea>
+                <small class="form-help">Enter each game name on a new line</small>
             </div>
             <button class="btn btn-secondary" onclick="deleteSelectedRegion()">
                 🗑️ Delete Region
@@ -430,6 +441,19 @@ window.updateRegionField = function(field, value) {
     const region = state.editingRegions.find(r => r.id === state.selectedRegionId);
     if (region) {
         region[field] = value;
+        updateRegionList();
+    }
+};
+
+window.updateRegionGames = function(value) {
+    const state = getState();
+    const region = state.editingRegions.find(r => r.id === state.selectedRegionId);
+    if (region) {
+        // Split by newlines, trim whitespace, filter out empty lines
+        region.games = value
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
         updateRegionList();
     }
 };

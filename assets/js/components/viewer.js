@@ -104,6 +104,20 @@ function renderViewerUI(shelfId, manifest, annotations, selectedAnnotationId) {
             
             <div class="scroll-hint" id="scroll-hint">→</div>
         </div>
+        
+        <!-- Game List Panel/Bottom Sheet -->
+        <div class="game-list-overlay" id="game-list-overlay">
+            <div class="game-list-panel">
+                <button class="game-list-close" id="game-list-close" aria-label="Close">×</button>
+                <div class="game-list-header">
+                    <h3 class="game-list-title" id="game-list-title"></h3>
+                    <p class="game-list-description" id="game-list-description"></p>
+                </div>
+                <div class="game-list-content">
+                    <ul class="game-grid" id="game-grid"></ul>
+                </div>
+            </div>
+        </div>
     `;
     
     // Set up scroll hint fade out and wheel scrolling
@@ -168,6 +182,7 @@ function renderImages(shelfId, manifest, annotations) {
 function renderAnnotationOverlay(regions, imageIndex) {
     const svgRegions = regions.map((region, idx) => {
         const regionId = `region-${imageIndex}-${idx}`;
+        const gamesJson = region.games ? escapeHtml(JSON.stringify(region.games)) : '[]';
         return `
             <rect 
                 id="${regionId}"
@@ -178,6 +193,7 @@ function renderAnnotationOverlay(regions, imageIndex) {
                 height="${region.height}"
                 data-label="${escapeHtml(region.label)}"
                 data-description="${escapeHtml(region.description || '')}"
+                data-games="${gamesJson}"
             />
         `;
     }).join('');
@@ -197,6 +213,12 @@ function createTooltip() {
     // Set up subtitle-style display instead of floating tooltip
     document.addEventListener('mouseover', handleRegionHover);
     document.addEventListener('mouseout', handleRegionLeave);
+    
+    // Set up click handlers for game list panel
+    document.addEventListener('click', handleRegionClick);
+    
+    // Set up game list panel close handlers
+    setupGameListHandlers();
     
     return null; // No longer using floating tooltip
 }
@@ -232,6 +254,106 @@ function hideSubtitle() {
     const subtitle = document.getElementById('annotation-subtitle');
     if (subtitle) {
         subtitle.classList.remove('visible');
+    }
+}
+
+function handleRegionClick(e) {
+    if (!e.target.classList.contains('annotation-region')) return;
+    
+    const label = e.target.dataset.label;
+    const description = e.target.dataset.description;
+    const gamesData = e.target.dataset.games;
+    
+    let games = [];
+    try {
+        games = JSON.parse(gamesData || '[]');
+    } catch (err) {
+        console.error('Failed to parse games data:', err);
+    }
+    
+    showGameList(label, description, games);
+}
+
+function showGameList(label, description, games) {
+    const overlay = document.getElementById('game-list-overlay');
+    const title = document.getElementById('game-list-title');
+    const desc = document.getElementById('game-list-description');
+    const grid = document.getElementById('game-grid');
+    
+    if (!overlay || !title || !desc || !grid) return;
+    
+    // Set content
+    title.textContent = label;
+    desc.textContent = description || '';
+    
+    // Render games
+    if (games && games.length > 0) {
+        grid.innerHTML = games.map(game => `<li>${escapeHtml(game)}</li>`).join('');
+    } else {
+        grid.innerHTML = '<li class="game-list-empty">No games listed for this section yet.</li>';
+    }
+    
+    // Show overlay
+    overlay.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeGameList() {
+    const overlay = document.getElementById('game-list-overlay');
+    if (!overlay) return;
+    
+    overlay.classList.remove('visible');
+    document.body.style.overflow = '';
+}
+
+function setupGameListHandlers() {
+    // Close button
+    const closeBtn = document.getElementById('game-list-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeGameList();
+        });
+    }
+    
+    // Click outside to close
+    const overlay = document.getElementById('game-list-overlay');
+    if (overlay) {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeGameList();
+            }
+        });
+    }
+    
+    // ESC key to close
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeGameList();
+        }
+    });
+    
+    // Basic swipe detection for mobile
+    const panel = document.querySelector('.game-list-panel');
+    if (panel) {
+        let startY = 0;
+        let currentY = 0;
+        
+        panel.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        panel.addEventListener('touchmove', (e) => {
+            currentY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        panel.addEventListener('touchend', () => {
+            const diff = currentY - startY;
+            // If swiped down more than 100px, close
+            if (diff > 100) {
+                closeGameList();
+            }
+        }, { passive: true });
     }
 }
 

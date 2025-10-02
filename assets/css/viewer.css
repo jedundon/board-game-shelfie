@@ -273,3 +273,188 @@ body:has(.viewer-container) .app-footer {
         right: var(--spacing-lg);
     }
 }
+
+/* ===========================
+   Game List Panel/Bottom Sheet
+   =========================== */
+
+/* Modal Overlay */
+.game-list-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.game-list-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Panel (Desktop - slides in from right) */
+.game-list-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 500px;
+    max-width: 90vw;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: 2001;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.game-list-overlay.visible .game-list-panel {
+    transform: translateX(0);
+}
+
+/* Panel Header */
+.game-list-header {
+    flex-shrink: 0;
+    padding: var(--spacing-xl);
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid var(--color-primary);
+}
+
+.game-list-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.game-list-description {
+    font-size: 1rem;
+    color: var(--color-text-light);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Close Button */
+.game-list-close {
+    position: absolute;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-size: 1.5rem;
+    transition: all var(--transition-base);
+}
+
+.game-list-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    transform: rotate(90deg);
+}
+
+/* Panel Content */
+.game-list-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-xl);
+}
+
+/* Game Grid */
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.game-grid li {
+    background: rgba(255, 255, 255, 0.05);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    border-left: 3px solid var(--color-primary);
+    color: white;
+    font-size: 0.95rem;
+    transition: all var(--transition-base);
+}
+
+.game-grid li:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-left-color: var(--color-accent);
+    transform: translateX(4px);
+}
+
+/* Empty state */
+.game-list-empty {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--color-text-light);
+    font-style: italic;
+}
+
+/* Mobile: Bottom Sheet */
+@media (max-width: 768px) {
+    .game-list-panel {
+        top: auto;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 70vh;
+        max-height: 70vh;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        transform: translateY(100%);
+    }
+    
+    .game-list-overlay.visible .game-list-panel {
+        transform: translateY(0);
+    }
+    
+    .game-list-header {
+        padding: var(--spacing-lg);
+        padding-top: var(--spacing-xl);
+    }
+    
+    /* Swipe Handle */
+    .game-list-panel::before {
+        content: '';
+        position: absolute;
+        top: var(--spacing-sm);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+    }
+    
+    .game-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .game-list-close {
+        top: var(--spacing-md);
+        right: var(--spacing-md);
+        width: 36px;
+        height: 36px;
+        font-size: 1.25rem;
+    }
+}
