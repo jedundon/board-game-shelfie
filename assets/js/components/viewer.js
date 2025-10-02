@@ -29,6 +29,8 @@ export async function renderViewer(shelfId, annotationId) {
         if (selectedAnnotationId) {
             try {
                 annotations = await loadAnnotations(shelfId, selectedAnnotationId);
+                console.log('Loaded annotations:', annotations);
+                console.log('Number of regions:', annotations?.regions?.length || 0);
                 setState({ 
                     currentAnnotations: annotations,
                     currentAnnotationId: selectedAnnotationId 
@@ -229,5 +231,6 @@ window.handleImageLoad = function(img) {
     
     if (svg && img.naturalWidth && img.naturalHeight) {
         svg.setAttribute('viewBox', `0 0 ${img.naturalWidth} ${img.naturalHeight}`);
+        console.log(`Set SVG viewBox: 0 0 ${img.naturalWidth} ${img.naturalHeight}`);
     }
 };
