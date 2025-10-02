@@ -1,14 +1,14 @@
 {
-  "name": "Test Shelf",
-  "author": "Demo",
-  "description": "A test shelf to verify the app is working",
+  "name": "Test Shelf - Demo Collection",
+  "author": "Demo User",
+  "description": "A demonstration shelf showing how annotations work. Try creating your own!",
   "images": [],
   "layout": "grid-2x3",
   "annotations": [
     {
       "id": "default",
-      "name": "Default Annotations",
-      "author": "Demo",
+      "name": "Demo Annotations",
+      "author": "Demo User",
       "file": "annotations/default.json"
     }
   ]
