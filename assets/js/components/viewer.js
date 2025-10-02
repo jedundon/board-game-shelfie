@@ -106,25 +106,35 @@ function renderViewerUI(shelfId, manifest, annotations, selectedAnnotationId) {
         </div>
     `;
     
-    // Set up scroll hint fade out
+    // Set up scroll hint fade out and wheel scrolling
     setTimeout(() => {
         const gallery = document.getElementById('image-grid');
         const scrollHint = document.getElementById('scroll-hint');
+        const viewerContainer = document.querySelector('.viewer-container');
+        
         if (gallery && scrollHint) {
             gallery.addEventListener('scroll', () => {
                 if (gallery.scrollLeft > 50) {
                     scrollHint.classList.add('hidden');
                 }
             }, { once: true });
-            
-            // Convert vertical scroll wheel to horizontal scrolling
-            gallery.addEventListener('wheel', (e) => {
-                // Prevent default vertical scroll
-                e.preventDefault();
-                
-                // Scroll horizontally based on vertical wheel delta
-                gallery.scrollLeft += e.deltaY;
+        }
+        
+        // Convert vertical scroll wheel to horizontal scrolling
+        // Attach to the entire viewer container to catch all wheel events
+        if (viewerContainer && gallery) {
+            viewerContainer.addEventListener('wheel', (e) => {
+                // Only intercept if not already scrolling horizontally
+                if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
+                    // Prevent default vertical scroll
+                    e.preventDefault();
+                    
+                    // Scroll horizontally based on vertical wheel delta
+                    gallery.scrollLeft += e.deltaY;
+                }
             }, { passive: false });
+            
+            console.log('Horizontal wheel scroll enabled');
         }
     }, 100);
 }
