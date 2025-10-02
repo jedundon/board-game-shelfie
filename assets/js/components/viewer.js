@@ -116,6 +116,15 @@ function renderViewerUI(shelfId, manifest, annotations, selectedAnnotationId) {
                     scrollHint.classList.add('hidden');
                 }
             }, { once: true });
+            
+            // Convert vertical scroll wheel to horizontal scrolling
+            gallery.addEventListener('wheel', (e) => {
+                // Prevent default vertical scroll
+                e.preventDefault();
+                
+                // Scroll horizontally based on vertical wheel delta
+                gallery.scrollLeft += e.deltaY;
+            }, { passive: false });
         }
     }, 100);
 }
