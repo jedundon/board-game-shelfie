@@ -78,19 +78,17 @@ function renderViewerUI(shelfId, manifest, annotations, selectedAnnotationId) {
     ` : '';
     
     main.innerHTML = `
-        <div class="container viewer-container">
+        <div class="viewer-container">
             <div class="viewer-header">
                 <div class="shelf-info">
-                    <div>
-                        <h2 class="shelf-title">${manifest.name || shelfId}</h2>
-                        <p class="shelf-meta">By ${manifest.author || 'Unknown'}</p>
-                        ${manifest.description ? `<p class="text-muted">${manifest.description}</p>` : ''}
-                    </div>
-                    <div>
-                        <a href="#/annotate/${shelfId}" class="btn btn-outline">
-                            ✏️ Create Annotations
-                        </a>
-                    </div>
+                    <h2 class="shelf-title">${manifest.name || shelfId}</h2>
+                    <p class="shelf-meta">By ${manifest.author || 'Unknown'}</p>
+                    <a href="#/annotate/${shelfId}" class="btn btn-outline">
+                        ✏️ Annotate
+                    </a>
+                    <a href="#/browse" class="btn btn-secondary">
+                        ← Browse
+                    </a>
                 </div>
                 ${annotationSelector}
             </div>
@@ -98,8 +96,28 @@ function renderViewerUI(shelfId, manifest, annotations, selectedAnnotationId) {
             <div class="image-grid" id="image-grid">
                 ${renderImages(shelfId, manifest, annotations)}
             </div>
+            
+            <div class="annotation-subtitle" id="annotation-subtitle">
+                <h3 class="annotation-subtitle-label" id="subtitle-label"></h3>
+                <p class="annotation-subtitle-description" id="subtitle-description"></p>
+            </div>
+            
+            <div class="scroll-hint" id="scroll-hint">→</div>
         </div>
     `;
+    
+    // Set up scroll hint fade out
+    setTimeout(() => {
+        const gallery = document.getElementById('image-grid');
+        const scrollHint = document.getElementById('scroll-hint');
+        if (gallery && scrollHint) {
+            gallery.addEventListener('scroll', () => {
+                if (gallery.scrollLeft > 50) {
+                    scrollHint.classList.add('hidden');
+                }
+            }, { once: true });
+        }
+    }, 100);
 }
 
 function renderImages(shelfId, manifest, annotations) {
@@ -157,17 +175,11 @@ function renderAnnotationOverlay(regions, imageIndex) {
 }
 
 function createTooltip() {
-    const tooltip = document.createElement('div');
-    tooltip.className = 'tooltip';
-    tooltip.id = 'annotation-tooltip';
-    document.body.appendChild(tooltip);
-    
-    // Add event listeners to all annotation regions
+    // Set up subtitle-style display instead of floating tooltip
     document.addEventListener('mouseover', handleRegionHover);
     document.addEventListener('mouseout', handleRegionLeave);
-    document.addEventListener('mousemove', handleMouseMove);
     
-    return tooltip;
+    return null; // No longer using floating tooltip
 }
 
 function handleRegionHover(e) {
@@ -176,43 +188,32 @@ function handleRegionHover(e) {
     const label = e.target.dataset.label;
     const description = e.target.dataset.description;
     
-    if (tooltip) {
-        tooltip.innerHTML = `
-            <div class="tooltip-label">${label}</div>
-            ${description ? `<div class="tooltip-description">${description}</div>` : ''}
-        `;
-        tooltip.classList.add('visible');
-    }
+    showSubtitle(label, description);
 }
 
 function handleRegionLeave(e) {
     if (!e.target.classList.contains('annotation-region')) return;
     
-    if (tooltip) {
-        tooltip.classList.remove('visible');
+    hideSubtitle();
+}
+
+function showSubtitle(label, description) {
+    const subtitle = document.getElementById('annotation-subtitle');
+    const labelEl = document.getElementById('subtitle-label');
+    const descriptionEl = document.getElementById('subtitle-description');
+    
+    if (subtitle && labelEl && descriptionEl) {
+        labelEl.textContent = label;
+        descriptionEl.textContent = description || '';
+        subtitle.classList.add('visible');
     }
 }
 
-function handleMouseMove(e) {
-    if (!tooltip || !tooltip.classList.contains('visible')) return;
-    
-    const padding = 15;
-    const tooltipRect = tooltip.getBoundingClientRect();
-    
-    let x = e.clientX + padding;
-    let y = e.clientY + padding;
-    
-    // Keep tooltip on screen
-    if (x + tooltipRect.width > window.innerWidth) {
-        x = e.clientX - tooltipRect.width - padding;
+function hideSubtitle() {
+    const subtitle = document.getElementById('annotation-subtitle');
+    if (subtitle) {
+        subtitle.classList.remove('visible');
     }
-    
-    if (y + tooltipRect.height > window.innerHeight) {
-        y = e.clientY - tooltipRect.height - padding;
-    }
-    
-    tooltip.style.left = `${x}px`;
-    tooltip.style.top = `${y}px`;
 }
 
 function escapeHtml(text) {
