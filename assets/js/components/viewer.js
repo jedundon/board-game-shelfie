@@ -445,3 +445,23 @@ window.handleImageLoad = function(img) {
         console.log(`Set SVG display size: ${displayWidth} x ${displayHeight}`);
     }
 };
+
+// Handle window resize to update SVG overlay dimensions
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    // Debounce resize events to avoid too many updates
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        const images = document.querySelectorAll('.viewer-image');
+        images.forEach(img => {
+            const wrapper = img.closest('.image-wrapper');
+            const svg = wrapper?.querySelector('.annotation-svg');
+            
+            if (svg && img.clientWidth && img.clientHeight) {
+                // Update SVG display dimensions to match resized image
+                svg.setAttribute('width', img.clientWidth);
+                svg.setAttribute('height', img.clientHeight);
+            }
+        });
+    }, 100); // Wait 100ms after resize stops before updating
+});
