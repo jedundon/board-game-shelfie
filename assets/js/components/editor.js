@@ -1,12 +1,12 @@
 // Editor component - create and edit annotation regions
-import { loadShelfManifest } from '../utils/dataLoader.js';
+import { loadShelfManifest, loadAnnotations } from '../utils/dataLoader.js';
 import { setState, getState } from '../state.js';
 
 let isDrawing = false;
 let drawingRegion = null;
 let currentImageIndex = null;
 
-export async function renderEditor(shelfId) {
+export async function renderEditor(shelfId, annotationId) {
     const main = document.getElementById('main');
     
     // Show loading state
@@ -21,12 +21,26 @@ export async function renderEditor(shelfId) {
     
     try {
         const manifest = await loadShelfManifest(shelfId);
+        
+        // Load existing annotation if specified
+        let existingRegions = [];
+        if (annotationId) {
+            try {
+                const annotations = await loadAnnotations(shelfId, annotationId);
+                existingRegions = annotations.regions || [];
+                console.log(`Loaded ${existingRegions.length} existing regions from ${annotationId}`);
+            } catch (error) {
+                console.warn(`Could not load annotation ${annotationId}:`, error);
+            }
+        }
+        
         setState({ 
             currentShelf: manifest,
-            editingRegions: []
+            currentAnnotationId: annotationId,
+            editingRegions: existingRegions
         });
         
-        renderEditorUI(shelfId, manifest);
+        renderEditorUI(shelfId, manifest, annotationId);
         setupEditorEvents();
         
     } catch (error) {
@@ -42,7 +56,7 @@ export async function renderEditor(shelfId) {
     }
 }
 
-function renderEditorUI(shelfId, manifest) {
+function renderEditorUI(shelfId, manifest, annotationId) {
     const main = document.getElementById('main');
     
     if (!manifest.images || manifest.images.length === 0) {
@@ -63,6 +77,7 @@ function renderEditorUI(shelfId, manifest) {
             <div style="margin-bottom: var(--spacing-lg);">
                 <h2>${manifest.name || shelfId} - Annotation Editor</h2>
                 <p class="text-muted">Click and drag on images to create annotation regions</p>
+                ${renderAnnotationSelector(shelfId, manifest, annotationId)}
             </div>
             
             <div class="editor-layout">
@@ -96,6 +111,30 @@ function renderEditorImages(shelfId, manifest) {
             </div>
         `;
     }).join('');
+}
+
+function renderAnnotationSelector(shelfId, manifest, currentAnnotationId) {
+    if (!manifest.annotations || manifest.annotations.length === 0) {
+        return `
+            <div class="annotation-selector" style="margin-top: var(--spacing-md);">
+                <p class="text-muted">Creating new annotation set</p>
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="annotation-selector" style="margin-top: var(--spacing-md);">
+            <label for="edit-annotation-select">Edit annotation:</label>
+            <select id="edit-annotation-select" onchange="window.location.hash = '#/annotate/${shelfId}/' + (this.value === '_new_' ? '' : this.value)">
+                <option value="_new_" ${!currentAnnotationId ? 'selected' : ''}>New Annotation</option>
+                ${manifest.annotations.map(a => `
+                    <option value="${a.id}" ${a.id === currentAnnotationId ? 'selected' : ''}>
+                        ${a.name} by ${a.author}
+                    </option>
+                `).join('')}
+            </select>
+        </div>
+    `;
 }
 
 function renderInstructions() {
@@ -182,6 +221,14 @@ function setupEditorEvents() {
         wrapper.addEventListener('mouseup', (e) => handleMouseUp(e, wrapper, index));
         wrapper.addEventListener('mouseleave', () => handleMouseLeave());
     });
+    
+    // Render any existing regions that were loaded
+    const state = getState();
+    if (state.editingRegions && state.editingRegions.length > 0) {
+        updateAllRegions();
+        updateRegionList();
+        updateRegionCount();
+    }
 }
 
 function handleMouseDown(e, wrapper, imageIndex) {

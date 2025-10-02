@@ -77,13 +77,18 @@ function renderViewerUI(shelfId, manifest, annotations, selectedAnnotationId) {
         </div>
     ` : '';
     
+    // Build annotate link - include current annotation if viewing one
+    const annotateLink = selectedAnnotationId 
+        ? `#/annotate/${shelfId}/${selectedAnnotationId}`
+        : `#/annotate/${shelfId}`;
+    
     main.innerHTML = `
         <div class="viewer-container">
             <div class="viewer-header">
                 <div class="shelf-info">
                     <h2 class="shelf-title">${manifest.name || shelfId}</h2>
                     <p class="shelf-meta">By ${manifest.author || 'Unknown'}</p>
-                    <a href="#/annotate/${shelfId}" class="btn btn-outline">
+                    <a href="${annotateLink}" class="btn btn-outline">
                         ✏️ Annotate
                     </a>
                     <a href="#/browse" class="btn btn-secondary">

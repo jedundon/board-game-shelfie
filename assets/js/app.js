@@ -36,10 +36,11 @@ router.addRoute('annotate', async (route) => {
     setState({ 
         currentMode: 'annotate',
         currentShelfId: route.shelfId,
+        currentAnnotationId: route.annotationId,
         editingRegions: []
     });
     
-    await renderEditor(route.shelfId);
+    await renderEditor(route.shelfId, route.annotationId);
 });
 
 // Initialize router after all routes are registered
