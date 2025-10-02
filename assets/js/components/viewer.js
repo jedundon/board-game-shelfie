@@ -149,7 +149,7 @@ function renderAnnotationOverlay(regions, imageIndex) {
     // We'll set this dynamically when image loads
     return `
         <div class="annotation-overlay">
-            <svg class="annotation-svg" preserveAspectRatio="none">
+            <svg class="annotation-svg" preserveAspectRatio="xMinYMin slice">
                 ${svgRegions}
             </svg>
         </div>
