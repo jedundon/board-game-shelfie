@@ -1,6 +1,10 @@
 {
   "shelves": [
     {
+      "id": "james-main",
+      "path": "james-main/manifest.json"
+    },
+    {
       "id": "test-shelf",
       "path": "test-shelf/manifest.json"
     }

@@ -173,14 +173,14 @@ loadAnnotations(shelfId, annotationId) → Promise<Annotations>
 │       │   ├── editor.js     # Editor component
 │       │   └── browser.js    # Shelf browser
 │       └── utils/
-│           ├── dataLoader.js # Data fetching
-│           └── export.js     # JSON export
+│           └── dataLoader.js # Data fetching
 ├── shelves/
 │   ├── index.json            # Root shelf index
 │   ├── james-main/
 │   │   ├── manifest.json
-│   │   ├── image1.jpg
-│   │   ├── image2.jpg
+│   │   ├── images/
+│   │   │   ├── shelf1.jpg
+│   │   │   └── shelf2.jpg
 │   │   └── annotations/
 │   │       └── default.json
 │   └── sarah-collection/

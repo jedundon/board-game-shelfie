@@ -1,0 +1,22 @@
+{
+  "name": "James's Board Game Collection",
+  "author": "James",
+  "description": "My personal board game collection with my unique organizational system (and some chaos)",
+  "images": [
+    "images/shelf1.jpg",
+    "images/shelf2.jpg",
+    "images/shelf3.jpg",
+    "images/shelf4.jpg",
+    "images/shelf5.jpg",
+    "images/shelf6.jpg"
+  ],
+  "layout": "grid-2x3",
+  "annotations": [
+    {
+      "id": "default",
+      "name": "My Organization System",
+      "author": "James",
+      "file": "annotations/default.json"
+    }
+  ]
+}
