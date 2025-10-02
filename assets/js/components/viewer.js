@@ -187,7 +187,8 @@ function renderImages(shelfId, manifest, annotations) {
 function renderAnnotationOverlay(regions, imageIndex) {
     const svgRegions = regions.map((region, idx) => {
         const regionId = `region-${imageIndex}-${idx}`;
-        const gamesJson = region.games ? escapeHtml(JSON.stringify(region.games)) : '[]';
+        // Store games as JSON in data attribute (use escapeAttr for proper encoding)
+        const gamesJson = region.games ? escapeAttr(JSON.stringify(region.games)) : '[]';
         return `
             <rect 
                 id="${regionId}"
@@ -271,9 +272,12 @@ function handleRegionClick(e) {
     
     let games = [];
     try {
-        games = JSON.parse(gamesData || '[]');
+        // Decode HTML entities before parsing JSON
+        const decodedData = decodeHtmlEntities(gamesData || '[]');
+        games = JSON.parse(decodedData);
+        console.log('Parsed games:', games);
     } catch (err) {
-        console.error('Failed to parse games data:', err);
+        console.error('Failed to parse games data:', err, 'Raw:', gamesData);
     }
     
     showGameList(label, description, games);
@@ -366,6 +370,22 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function escapeAttr(text) {
+    // Escape for HTML attribute - only escape quotes and ampersands
+    // This preserves JSON structure while making it safe for attributes
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function decodeHtmlEntities(text) {
+    // Decode HTML entities back to original characters
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
 }
 
 // Make handleImageLoad available globally for inline onload
