@@ -129,8 +129,8 @@ function renderViewerUI(shelfId, manifest, annotations, selectedAnnotationId) {
                     // Prevent default vertical scroll
                     e.preventDefault();
                     
-                    // Scroll horizontally based on vertical wheel delta
-                    gallery.scrollLeft += e.deltaY;
+                    // Scroll horizontally based on vertical wheel delta (3x speed)
+                    gallery.scrollLeft += e.deltaY * 3;
                 }
             }, { passive: false });
             
