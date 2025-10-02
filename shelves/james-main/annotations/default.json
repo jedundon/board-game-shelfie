@@ -1,5 +1,168 @@
 {
   "version": "1.0",
-  "created": "2025-10-01T12:00:00Z",
-  "regions": []
+  "created": "2025-10-02T05:22:47.357Z",
+  "regions": [
+    {
+      "imageIndex": 0,
+      "x": 17,
+      "y": 107,
+      "width": 204,
+      "height": 543,
+      "label": "TTRPGs",
+      "description": "Mostly proper TTRPGs I will never play..."
+    },
+    {
+      "imageIndex": 0,
+      "x": 1432,
+      "y": 77,
+      "width": 1001,
+      "height": 594,
+      "label": "Horror",
+      "description": "Horror-themed games"
+    },
+    {
+      "imageIndex": 0,
+      "x": 1076,
+      "y": 729,
+      "width": 1113,
+      "height": 571,
+      "label": "Engine Building",
+      "description": "Engine building games"
+    },
+    {
+      "imageIndex": 0,
+      "x": 2193,
+      "y": 725,
+      "width": 224,
+      "height": 577,
+      "label": "Game Building",
+      "description": "Game building system. (Or whatever Looney Labs would call this...)"
+    },
+    {
+      "imageIndex": 0,
+      "x": 42,
+      "y": 1367,
+      "width": 1181,
+      "height": 605,
+      "label": "Star Trek",
+      "description": "Star Trek games"
+    },
+    {
+      "imageIndex": 0,
+      "x": 1229,
+      "y": 1367,
+      "width": 159,
+      "height": 615,
+      "label": "Star Trek Adjacent",
+      "description": "Almost Star Trek games..."
+    },
+    {
+      "imageIndex": 0,
+      "x": 1423,
+      "y": 1367,
+      "width": 380,
+      "height": 615,
+      "label": "Star Wars",
+      "description": "Most of the Star Wars games"
+    },
+    {
+      "imageIndex": 0,
+      "x": 1803,
+      "y": 1361,
+      "width": 597,
+      "height": 625,
+      "label": "Sci-Fi Series",
+      "description": "Other sci-fi series games."
+    },
+    {
+      "imageIndex": 0,
+      "x": 52,
+      "y": 1979,
+      "width": 2345,
+      "height": 1111,
+      "label": "Deck Builders",
+      "description": "Deck-building games. (Or close enough)"
+    },
+    {
+      "imageIndex": 0,
+      "x": 1952,
+      "y": 3090,
+      "width": 397,
+      "height": 166,
+      "label": "Lorcana Part 2",
+      "description": "A second stash of Lorcana"
+    },
+    {
+      "imageIndex": 0,
+      "x": 964,
+      "y": 3090,
+      "width": 818,
+      "height": 577,
+      "label": "Card Battling",
+      "description": "Card battling games (or close enough)"
+    },
+    {
+      "imageIndex": 0,
+      "x": 1786,
+      "y": 3090,
+      "width": 170,
+      "height": 560,
+      "label": "Lorcana Part 1",
+      "description": "First stash of Lorcana"
+    },
+    {
+      "imageIndex": 0,
+      "x": 1962,
+      "y": 3256,
+      "width": 387,
+      "height": 408,
+      "label": "King of Tokyo & Friends",
+      "description": "King of Tokyo/New York/Monster Island"
+    },
+    {
+      "imageIndex": 0,
+      "x": 52,
+      "y": 3093,
+      "width": 903,
+      "height": 564,
+      "label": "Boss Monster Universe",
+      "description": "Boss Monster, Overboss, Dungeon Kart"
+    },
+    {
+      "imageIndex": 0,
+      "x": 28,
+      "y": 681,
+      "width": 587,
+      "height": 622,
+      "label": "2-Player Competitive",
+      "description": "Thematic 2-player competitive games"
+    },
+    {
+      "imageIndex": 0,
+      "x": 618,
+      "y": 691,
+      "width": 461,
+      "height": 622,
+      "label": "Misc Thematic Competitive",
+      "description": "Misc. thematic competitive games"
+    },
+    {
+      "imageIndex": 0,
+      "x": 625,
+      "y": 49,
+      "width": 736,
+      "height": 639,
+      "label": "Competitive Fantasy Games",
+      "description": "Competitive fantasy games"
+    },
+    {
+      "imageIndex": 0,
+      "x": 228,
+      "y": 63,
+      "width": 404,
+      "height": 608,
+      "label": "Misc Thematic Competitive Part 2",
+      "description": "More competitive thematic games"
+    }
+  ]
 }
