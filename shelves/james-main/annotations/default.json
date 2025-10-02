@@ -1,168 +1,565 @@
-{
-  "version": "1.0",
-  "created": "2025-10-02T05:22:47.357Z",
-  "regions": [
-    {
-      "imageIndex": 0,
-      "x": 17,
-      "y": 107,
-      "width": 204,
-      "height": 543,
-      "label": "TTRPGs",
-      "description": "Mostly proper TTRPGs I will never play..."
-    },
-    {
-      "imageIndex": 0,
-      "x": 1432,
-      "y": 77,
-      "width": 1001,
-      "height": 594,
-      "label": "Horror",
-      "description": "Horror-themed games"
-    },
-    {
-      "imageIndex": 0,
-      "x": 1076,
-      "y": 729,
-      "width": 1113,
-      "height": 571,
-      "label": "Engine Building",
-      "description": "Engine building games"
-    },
-    {
-      "imageIndex": 0,
-      "x": 2193,
-      "y": 725,
-      "width": 224,
-      "height": 577,
-      "label": "Game Building",
-      "description": "Game building system. (Or whatever Looney Labs would call this...)"
-    },
-    {
-      "imageIndex": 0,
-      "x": 42,
-      "y": 1367,
-      "width": 1181,
-      "height": 605,
-      "label": "Star Trek",
-      "description": "Star Trek games"
-    },
-    {
-      "imageIndex": 0,
-      "x": 1229,
-      "y": 1367,
-      "width": 159,
-      "height": 615,
-      "label": "Star Trek Adjacent",
-      "description": "Almost Star Trek games..."
-    },
-    {
-      "imageIndex": 0,
-      "x": 1423,
-      "y": 1367,
-      "width": 380,
-      "height": 615,
-      "label": "Star Wars",
-      "description": "Most of the Star Wars games"
-    },
-    {
-      "imageIndex": 0,
-      "x": 1803,
-      "y": 1361,
-      "width": 597,
-      "height": 625,
-      "label": "Sci-Fi Series",
-      "description": "Other sci-fi series games."
-    },
-    {
-      "imageIndex": 0,
-      "x": 52,
-      "y": 1979,
-      "width": 2345,
-      "height": 1111,
-      "label": "Deck Builders",
-      "description": "Deck-building games. (Or close enough)"
-    },
-    {
-      "imageIndex": 0,
-      "x": 1952,
-      "y": 3090,
-      "width": 397,
-      "height": 166,
-      "label": "Lorcana Part 2",
-      "description": "A second stash of Lorcana"
-    },
-    {
-      "imageIndex": 0,
-      "x": 964,
-      "y": 3090,
-      "width": 818,
-      "height": 577,
-      "label": "Card Battling",
-      "description": "Card battling games (or close enough)"
-    },
-    {
-      "imageIndex": 0,
-      "x": 1786,
-      "y": 3090,
-      "width": 170,
-      "height": 560,
-      "label": "Lorcana Part 1",
-      "description": "First stash of Lorcana"
-    },
-    {
-      "imageIndex": 0,
-      "x": 1962,
-      "y": 3256,
-      "width": 387,
-      "height": 408,
-      "label": "King of Tokyo & Friends",
-      "description": "King of Tokyo/New York/Monster Island"
-    },
-    {
-      "imageIndex": 0,
-      "x": 52,
-      "y": 3093,
-      "width": 903,
-      "height": 564,
-      "label": "Boss Monster Universe",
-      "description": "Boss Monster, Overboss, Dungeon Kart"
-    },
-    {
-      "imageIndex": 0,
-      "x": 28,
-      "y": 681,
-      "width": 587,
-      "height": 622,
-      "label": "2-Player Competitive",
-      "description": "Thematic 2-player competitive games"
-    },
-    {
-      "imageIndex": 0,
-      "x": 618,
-      "y": 691,
-      "width": 461,
-      "height": 622,
-      "label": "Misc Thematic Competitive",
-      "description": "Misc. thematic competitive games"
-    },
-    {
-      "imageIndex": 0,
-      "x": 625,
-      "y": 49,
-      "width": 736,
-      "height": 639,
-      "label": "Competitive Fantasy Games",
-      "description": "Competitive fantasy games"
-    },
-    {
-      "imageIndex": 0,
-      "x": 228,
-      "y": 63,
-      "width": 404,
-      "height": 608,
-      "label": "Misc Thematic Competitive Part 2",
-      "description": "More competitive thematic games"
-    }
-  ]
-}
+{{
+
+  "version": "1.0",  "version": "1.0",
+
+  "created": "2025-10-02T16:50:08.724Z",  "created": "2025-10-02T16:50:08.724Z",
+
+  "regions": [  "regions": [
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 17,      "x": 17,
+
+      "y": 107,      "y": 107,
+
+      "width": 204,      "width": 204,
+
+      "height": 543,      "height": 543,
+
+      "label": "TTRPGs",      "label": "TTRPGs",
+
+      "description": "Mostly proper TTRPGs I will never play..."      "description": "Mostly proper TTRPGs I will never play..."
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 1432,      "x": 1432,
+
+      "y": 77,      "y": 77,
+
+      "width": 1001,      "width": 1001,
+
+      "height": 594,      "height": 594,
+
+      "label": "Horror",      "label": "Horror",
+
+      "description": "Horror-themed games"      "description": "Horror-themed games"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 1076,      "x": 1076,
+
+      "y": 729,      "y": 729,
+
+      "width": 1113,      "width": 1113,
+
+      "height": 571,      "height": 571,
+
+      "label": "Engine Building",      "label": "Engine Building",
+
+      "description": "Engine building games"      "description": "Engine building games"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 2193,      "x": 2193,
+
+      "y": 725,      "y": 725,
+
+      "width": 224,      "width": 224,
+
+      "height": 577,      "height": 577,
+
+      "label": "Game Building",      "label": "Game Building",
+
+      "description": "Game building system. (Or whatever Looney Labs would call this...)"      "description": "Game building system. (Or whatever Looney Labs would call this...)"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 42,      "x": 42,
+
+      "y": 1367,      "y": 1367,
+
+      "width": 1181,      "width": 1181,
+
+      "height": 605,      "height": 605,
+
+      "label": "Star Trek",      "label": "Star Trek",
+
+      "description": "Star Trek games"      "description": "Star Trek games"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 1229,      "x": 1229,
+
+      "y": 1367,      "y": 1367,
+
+      "width": 159,      "width": 159,
+
+      "height": 615,      "height": 615,
+
+      "label": "Star Trek Adjacent",      "label": "Star Trek Adjacent",
+
+      "description": "Almost Star Trek games..."      "description": "Almost Star Trek games..."
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 1423,      "x": 1423,
+
+      "y": 1367,      "y": 1367,
+
+      "width": 380,      "width": 380,
+
+      "height": 615,      "height": 615,
+
+      "label": "Star Wars",      "label": "Star Wars",
+
+      "description": "Most of the Star Wars games"      "description": "Most of the Star Wars games"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 1803,      "x": 1803,
+
+      "y": 1361,      "y": 1361,
+
+      "width": 597,      "width": 597,
+
+      "height": 625,      "height": 625,
+
+      "label": "Sci-Fi Series",      "label": "Sci-Fi Series",
+
+      "description": "Other sci-fi series games."      "description": "Other sci-fi series games."
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 52,      "x": 52,
+
+      "y": 1979,      "y": 1979,
+
+      "width": 2345,      "width": 2345,
+
+      "height": 1111,      "height": 1111,
+
+      "label": "Deck Builders",      "label": "Deck Builders",
+
+      "description": "Deck-building games. (Or close enough)"      "description": "Deck-building games. (Or close enough)"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 1952,      "x": 1952,
+
+      "y": 3090,      "y": 3090,
+
+      "width": 397,      "width": 397,
+
+      "height": 166,      "height": 166,
+
+      "label": "Lorcana Part 2",      "label": "Lorcana Part 2",
+
+      "description": "A second stash of Lorcana"      "description": "A second stash of Lorcana"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 964,      "x": 964,
+
+      "y": 3090,      "y": 3090,
+
+      "width": 818,      "width": 818,
+
+      "height": 577,      "height": 577,
+
+      "label": "Card Battling",      "label": "Card Battling",
+
+      "description": "Card battling games (or close enough)"      "description": "Card battling games (or close enough)"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 1786,      "x": 1786,
+
+      "y": 3090,      "y": 3090,
+
+      "width": 170,      "width": 170,
+
+      "height": 560,      "height": 560,
+
+      "label": "Lorcana Part 1",      "label": "Lorcana Part 1",
+
+      "description": "First stash of Lorcana"      "description": "First stash of Lorcana"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 1962,      "x": 1962,
+
+      "y": 3256,      "y": 3256,
+
+      "width": 387,      "width": 387,
+
+      "height": 408,      "height": 408,
+
+      "label": "King of Tokyo & Friends",      "label": "King of Tokyo & Friends",
+
+      "description": "King of Tokyo/New York/Monster Island"      "description": "King of Tokyo/New York/Monster Island"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 52,      "x": 52,
+
+      "y": 3093,      "y": 3093,
+
+      "width": 903,      "width": 903,
+
+      "height": 564,      "height": 564,
+
+      "label": "Boss Monster Universe",      "label": "Boss Monster Universe",
+
+      "description": "Boss Monster, Overboss, Dungeon Kart"      "description": "Boss Monster, Overboss, Dungeon Kart"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 28,      "x": 28,
+
+      "y": 681,      "y": 681,
+
+      "width": 587,      "width": 587,
+
+      "height": 622,      "height": 622,
+
+      "label": "2-Player Competitive",      "label": "2-Player Competitive",
+
+      "description": "Thematic 2-player competitive games"      "description": "Thematic 2-player competitive games"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 618,      "x": 618,
+
+      "y": 691,      "y": 691,
+
+      "width": 461,      "width": 461,
+
+      "height": 622,      "height": 622,
+
+      "label": "Misc Thematic Competitive",      "label": "Misc Thematic Competitive",
+
+      "description": "Misc. thematic competitive games"      "description": "Misc. thematic competitive games"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 625,      "x": 625,
+
+      "y": 49,      "y": 49,
+
+      "width": 736,      "width": 736,
+
+      "height": 639,      "height": 639,
+
+      "label": "Competitive Fantasy Games",      "label": "Competitive Fantasy Games",
+
+      "description": "Competitive fantasy games"      "description": "Competitive fantasy games"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 0,      "imageIndex": 0,
+
+      "x": 228,      "x": 228,
+
+      "y": 63,      "y": 63,
+
+      "width": 404,      "width": 404,
+
+      "height": 608,      "height": 608,
+
+      "label": "Misc Thematic Competitive Part 2",      "label": "Misc Thematic Competitive Part 2",
+
+      "description": "More competitive thematic games"      "description": "More competitive thematic games"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 1,      "imageIndex": 1,
+
+      "x": 4,      "x": 4,
+
+      "y": 2,      "y": 2,
+
+      "width": 955,      "width": 955,
+
+      "height": 457,      "height": 457,
+
+      "label": "Old Chess Set",      "label": "Old Chess Set",
+
+      "description": "Really old floor chess set. The pieces are filled with sand. Super heavy.",      "description": "Really old floor chess set. The pieces are filled with sand. Super heavy.",
+
+      "games": [      "games": [
+
+        "Chess"        "Chess"
+
+      ]      ]
+
+    },    },
+
+    {    {
+
+      "imageIndex": 1,      "imageIndex": 1,
+
+      "x": 6,      "x": 6,
+
+      "y": 462,      "y": 462,
+
+      "width": 965,      "width": 965,
+
+      "height": 158,      "height": 158,
+
+      "label": "Khet Copy 1",      "label": "Khet Copy 1",
+
+      "description": "1 of our copies of Khet aka Laser Chess",      "description": "1 of our copies of Khet aka Laser Chess",
+
+      "games": [      "games": [
+
+        "Khet"        "Khet"
+
+      ]      ]
+
+    },    },
+
+    {    {
+
+      "imageIndex": 1,      "imageIndex": 1,
+
+      "x": 143,      "x": 143,
+
+      "y": 2878,      "y": 2878,
+
+      "width": 179,      "width": 179,
+
+      "height": 746,      "height": 746,
+
+      "label": "Khet Copy 2",      "label": "Khet Copy 2",
+
+      "description": "The other copy of Khet aka Laser Chess. So lonely!",      "description": "The other copy of Khet aka Laser Chess. So lonely!",
+
+      "games": [      "games": [
+
+        "Khet"        "Khet"
+
+      ]      ]
+
+    },    },
+
+    {    {
+
+      "imageIndex": 1,      "imageIndex": 1,
+
+      "x": 7,      "x": 7,
+
+      "y": 626,      "y": 626,
+
+      "width": 965,      "width": 965,
+
+      "height": 368,      "height": 368,
+
+      "label": "Non-Board Games",      "label": "Non-Board Games",
+
+      "description": "Not sure why these are here. Turing Tumble is, I guess, a kinetic puzzle so maybe that one counts?"      "description": "Not sure why these are here. Turing Tumble is, I guess, a kinetic puzzle so maybe that one counts?"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 1,      "imageIndex": 1,
+
+      "x": 297,      "x": 297,
+
+      "y": 1036,      "y": 1036,
+
+      "width": 569,      "width": 569,
+
+      "height": 396,      "height": 396,
+
+      "label": "Big Mess",      "label": "Big Mess",
+
+      "description": "Misc. game components, dominoes, trays, stickers... a huge mess."      "description": "Misc. game components, dominoes, trays, stickers... a huge mess."
+
+    },    },
+
+    {    {
+
+      "imageIndex": 1,      "imageIndex": 1,
+
+      "x": 97,      "x": 97,
+
+      "y": 1034,      "y": 1034,
+
+      "width": 192,      "width": 192,
+
+      "height": 403,      "height": 403,
+
+      "label": "More Pyramids",      "label": "More Pyramids",
+
+      "description": "Additional smaller box Pyramids from Looney Labs"      "description": "Additional smaller box Pyramids from Looney Labs"
+
+    },    },
+
+    {    {
+
+      "imageIndex": 1,      "imageIndex": 1,
+
+      "x": 101,      "x": 101,
+
+      "y": 1483,      "y": 1483,
+
+      "width": 759,      "width": 759,
+
+      "height": 322,      "height": 322,
+
+      "label": "More Misc Accessories",      "label": "More Misc Accessories",
+
+      "description": "More misc trays, playing mats and some runaway Button Shy games."      "description": "More misc trays, playing mats and some runaway Button Shy games."
+
+    },    },
+
+    {    {
+
+      "imageIndex": 1,      "imageIndex": 1,
+
+      "x": 103,      "x": 103,
+
+      "y": 1813,      "y": 1813,
+
+      "width": 550,      "width": 550,
+
+      "height": 151,      "height": 151,
+
+      "label": "Sabotage",      "label": "Sabotage",
+
+      "description": "This game won't store vertically so it's banished to the component pile.",      "description": "This game won't store vertically so it's banished to the component pile.",
+
+      "games": [      "games": [
+
+        "Sabotage"        "Sabotage"
+
+      ]      ]
+
+    },    },
+
+    {    {
+
+      "imageIndex": 1,      "imageIndex": 1,
+
+      "x": 712,      "x": 712,
+
+      "y": 1807,      "y": 1807,
+
+      "width": 151,      "width": 151,
+
+      "height": 164,      "height": 164,
+
+      "label": "Keyforge Part 1",      "label": "Keyforge Part 1",
+
+      "description": "Modified Keyforge starter set box which holds about 19 Keyforge decks. "      "description": "Modified Keyforge starter set box which holds about 19 Keyforge decks. "
+
+    },    },
+
+    {    {
+
+      "imageIndex": 1,      "imageIndex": 1,
+
+      "x": 109,      "x": 109,
+
+      "y": 1991,      "y": 1991,
+
+      "width": 739,      "width": 739,
+
+      "height": 719,      "height": 719,
+
+      "label": "Exploding Kittens and Friends",      "label": "Exploding Kittens and Friends",
+
+      "description": "Way too many Exploding Kittens published games."      "description": "Way too many Exploding Kittens published games."
+
+    },    },
+
+    {    {
+
+      "imageIndex": 1,      "imageIndex": 1,
+
+      "x": 569,      "x": 569,
+
+      "y": 2711,      "y": 2711,
+
+      "width": 274,      "width": 274,
+
+      "height": 133,      "height": 133,
+
+      "label": "Out-of-Place Card Games",      "label": "Out-of-Place Card Games",
+
+      "description": "2 out-of-place card games. I'm sure these have a better location to be in...",      "description": "2 out-of-place card games. I'm sure these have a better location to be in...",
+
+      "games": [      "games": [
+
+        "Odin's Ravens",        "Odin's Ravens",
+
+        "The Crew"        "The Crew"
+
+      ]      ]
+
+    }    }
+
+  ]  ]
+
+}}
