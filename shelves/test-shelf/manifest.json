@@ -1,0 +1,15 @@
+{
+  "name": "Test Shelf",
+  "author": "Demo",
+  "description": "A test shelf to verify the app is working",
+  "images": [],
+  "layout": "grid-2x3",
+  "annotations": [
+    {
+      "id": "default",
+      "name": "Default Annotations",
+      "author": "Demo",
+      "file": "annotations/default.json"
+    }
+  ]
+}

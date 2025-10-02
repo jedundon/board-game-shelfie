@@ -1,0 +1,8 @@
+{
+  "shelves": [
+    {
+      "id": "test-shelf",
+      "path": "test-shelf/manifest.json"
+    }
+  ]
+}
