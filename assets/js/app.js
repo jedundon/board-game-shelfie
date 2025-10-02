@@ -42,6 +42,9 @@ router.addRoute('annotate', async (route) => {
     await renderEditor(route.shelfId);
 });
 
+// Initialize router after all routes are registered
+router.init();
+
 // Export router for other modules
 export { router };
 

@@ -4,11 +4,15 @@ export class Router {
     constructor() {
         this.routes = new Map();
         this.currentRoute = null;
+        this.initialized = false;
         
         // Listen for hash changes
         window.addEventListener('hashchange', () => this.handleRouteChange());
-        
-        // Handle initial load
+    }
+    
+    init() {
+        // Call this after routes are registered
+        this.initialized = true;
         this.handleRouteChange();
     }
     
