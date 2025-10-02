@@ -231,6 +231,15 @@ window.handleImageLoad = function(img) {
     
     if (svg && img.naturalWidth && img.naturalHeight) {
         svg.setAttribute('viewBox', `0 0 ${img.naturalWidth} ${img.naturalHeight}`);
+        
+        // Also set explicit width and height to match displayed image size
+        // This ensures the SVG overlay exactly matches the rendered image
+        const displayWidth = img.clientWidth;
+        const displayHeight = img.clientHeight;
+        svg.setAttribute('width', displayWidth);
+        svg.setAttribute('height', displayHeight);
+        
         console.log(`Set SVG viewBox: 0 0 ${img.naturalWidth} ${img.naturalHeight}`);
+        console.log(`Set SVG display size: ${displayWidth} x ${displayHeight}`);
     }
 };
