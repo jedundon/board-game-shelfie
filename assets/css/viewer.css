@@ -154,7 +154,7 @@ body:has(.viewer-container) .app-footer {
 }
 
 .annotation-region:hover {
-    fill: rgba(74, 144, 226, 0.35);
+    fill: rgba(74, 144, 226, 0.21);
     stroke: rgba(74, 144, 226, 1);
     stroke-width: 4;
 }
