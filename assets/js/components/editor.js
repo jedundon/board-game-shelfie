@@ -27,7 +27,11 @@ export async function renderEditor(shelfId, annotationId) {
         if (annotationId) {
             try {
                 const annotations = await loadAnnotations(shelfId, annotationId);
-                existingRegions = annotations.regions || [];
+                // Add IDs to loaded regions (they don't have IDs in the JSON)
+                existingRegions = (annotations.regions || []).map((region, index) => ({
+                    id: `region-${Date.now()}-${index}`,
+                    ...region
+                }));
                 console.log(`Loaded ${existingRegions.length} existing regions from ${annotationId}`);
             } catch (error) {
                 console.warn(`Could not load annotation ${annotationId}:`, error);
