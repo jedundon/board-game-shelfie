@@ -185,23 +185,37 @@ function renderImages(shelfId, manifest, annotations) {
 }
 
 function renderAnnotationOverlay(regions, imageIndex) {
-    const svgRegions = regions.map((region, idx) => {
+    const svgRegions = regions.flatMap((region, idx) => {
         const regionId = `region-${imageIndex}-${idx}`;
-        // Store games as JSON in data attribute (use escapeAttr for proper encoding)
         const gamesJson = region.games ? escapeAttr(JSON.stringify(region.games)) : '[]';
-        return `
-            <rect 
-                id="${regionId}"
-                class="annotation-region"
-                x="${region.x}" 
-                y="${region.y}" 
-                width="${region.width}" 
-                height="${region.height}"
-                data-label="${escapeHtml(region.label)}"
-                data-description="${escapeHtml(region.description || '')}"
-                data-games="${gamesJson}"
-            />
-        `;
+        
+        // Support both old format (single rect) and new format (shapes array)
+        const shapes = region.shapes ? region.shapes : [{
+            type: 'rect',
+            x: region.x,
+            y: region.y,
+            width: region.width,
+            height: region.height
+        }];
+        
+        // Render all shapes for this region, all with same data
+        return shapes.map((shape, shapeIdx) => {
+            const shapeId = `${regionId}-shape-${shapeIdx}`;
+            return `
+                <rect 
+                    id="${shapeId}"
+                    class="annotation-region"
+                    x="${shape.x}" 
+                    y="${shape.y}" 
+                    width="${shape.width}" 
+                    height="${shape.height}"
+                    data-region-id="${regionId}"
+                    data-label="${escapeHtml(region.label)}"
+                    data-description="${escapeHtml(region.description || '')}"
+                    data-games="${gamesJson}"
+                />
+            `;
+        });
     }).join('');
     
     // SVG will use the natural image dimensions as viewBox
@@ -234,6 +248,10 @@ function handleRegionHover(e) {
     
     const label = e.target.dataset.label;
     const description = e.target.dataset.description;
+    const regionId = e.target.dataset.regionId;
+    
+    // Highlight all shapes in the same region group
+    highlightRegionGroup(regionId, true);
     
     showSubtitle(label, description);
 }
@@ -241,7 +259,24 @@ function handleRegionHover(e) {
 function handleRegionLeave(e) {
     if (!e.target.classList.contains('annotation-region')) return;
     
+    const regionId = e.target.dataset.regionId;
+    
+    // Remove highlight from all shapes in the region group
+    highlightRegionGroup(regionId, false);
+    
     hideSubtitle();
+}
+
+function highlightRegionGroup(regionId, highlight) {
+    // Find all shapes with the same region-id and toggle highlight class
+    const shapes = document.querySelectorAll(`[data-region-id="${regionId}"]`);
+    shapes.forEach(shape => {
+        if (highlight) {
+            shape.classList.add('region-group-hover');
+        } else {
+            shape.classList.remove('region-group-hover');
+        }
+    });
 }
 
 function showSubtitle(label, description) {

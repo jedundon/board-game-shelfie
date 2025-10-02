@@ -293,11 +293,49 @@ function handleMouseUp(e, wrapper, imageIndex) {
     if (width < 10 || height < 10) {
         drawingRegion = null;
         updateDrawingPreview(wrapper);
+        addingShapeMode = false;
         return;
     }
     
-    // Create region
     const state = getState();
+    
+    // Check if we're adding a shape to an existing region
+    if (addingShapeMode && state.selectedRegionId) {
+        const region = state.editingRegions.find(r => r.id === state.selectedRegionId);
+        if (region) {
+            // Normalize region to shapes array format
+            if (!region.shapes) {
+                region.shapes = [{
+                    type: 'rect',
+                    x: region.x,
+                    y: region.y,
+                    width: region.width,
+                    height: region.height
+                }];
+                delete region.x;
+                delete region.y;
+                delete region.width;
+                delete region.height;
+            }
+            
+            // Add new shape
+            region.shapes.push({
+                type: 'rect',
+                x: Math.round(x),
+                y: Math.round(y),
+                width: Math.round(width),
+                height: Math.round(height)
+            });
+            
+            addingShapeMode = false;
+            drawingRegion = null;
+            updateAllRegions();
+            renderRegionForm(region);
+            return;
+        }
+    }
+    
+    // Create new region
     const regionId = `region-${Date.now()}`;
     const newRegion = {
         id: regionId,
@@ -313,6 +351,7 @@ function handleMouseUp(e, wrapper, imageIndex) {
     state.editingRegions.push(newRegion);
     setState({ editingRegions: state.editingRegions });
     
+    addingShapeMode = false;
     drawingRegion = null;
     updateAllRegions();
     selectRegion(regionId);
@@ -377,16 +416,27 @@ function updateAllRegions() {
 
 function createRegionElement(region) {
     const isSelected = getState().selectedRegionId === region.id;
-    return `
+    
+    // Support both old format (x/y/width/height) and new format (shapes array)
+    const shapes = region.shapes || [{
+        type: 'rect',
+        x: region.x,
+        y: region.y,
+        width: region.width,
+        height: region.height
+    }];
+    
+    return shapes.map((shape, index) => `
         <rect 
             class="editor-region ${isSelected ? 'selected' : ''}"
             data-region-id="${region.id}"
-            x="${region.x}" 
-            y="${region.y}" 
-            width="${region.width}" 
-            height="${region.height}"
+            data-shape-index="${index}"
+            x="${shape.x}" 
+            y="${shape.y}" 
+            width="${shape.width}" 
+            height="${shape.height}"
         />
-    `;
+    `).join('');
 }
 
 function selectRegion(regionId) {
@@ -439,11 +489,22 @@ function renderRegionForm(region) {
                 >${gamesText}</textarea>
                 <small class="form-help">Enter each game name on a new line</small>
             </div>
+            <div class="form-group">
+                <label>Shapes (${region.shapes ? region.shapes.length : 1})</label>
+                <div class="shape-list" id="shape-list"></div>
+                <button class="btn btn-outline" onclick="startAddingShape()">
+                    ➕ Add Another Rectangle
+                </button>
+                <small class="form-help">Add multiple rectangles to cover non-contiguous areas</small>
+            </div>
             <button class="btn btn-secondary" onclick="deleteSelectedRegion()">
                 🗑️ Delete Region
             </button>
         </div>
     `;
+    
+    // Render the shapes list after the form
+    setTimeout(() => renderShapeList(region), 0);
 }
 
 function updateRegionList() {
@@ -503,6 +564,71 @@ window.updateRegionGames = function(value) {
             .filter(line => line.length > 0);
         updateRegionList();
     }
+};
+
+function renderShapeList(region) {
+    const shapeListEl = document.getElementById('shape-list');
+    if (!shapeListEl) return;
+    
+    // Normalize to shapes array format
+    const shapes = region.shapes || [{
+        type: 'rect',
+        x: region.x,
+        y: region.y,
+        width: region.width,
+        height: region.height
+    }];
+    
+    if (shapes.length <= 1) {
+        shapeListEl.innerHTML = '<small class="text-muted">Single shape</small>';
+        return;
+    }
+    
+    const shapeItems = shapes.map((shape, idx) => `
+        <div class="shape-item">
+            <span>Rectangle ${idx + 1}: ${Math.round(shape.width)}×${Math.round(shape.height)}px</span>
+            <button class="btn-icon" onclick="deleteShape(${idx})" title="Delete this shape">×</button>
+        </div>
+    `).join('');
+    
+    shapeListEl.innerHTML = shapeItems;
+}
+
+let addingShapeMode = false;
+
+window.startAddingShape = function() {
+    addingShapeMode = true;
+    alert('Click and drag on the image to add another rectangle to this region.');
+};
+
+window.deleteShape = function(shapeIndex) {
+    const state = getState();
+    const region = state.editingRegions.find(r => r.id === state.selectedRegionId);
+    if (!region) return;
+    
+    // Normalize to shapes array
+    if (!region.shapes) {
+        region.shapes = [{
+            type: 'rect',
+            x: region.x,
+            y: region.y,
+            width: region.width,
+            height: region.height
+        }];
+        delete region.x;
+        delete region.y;
+        delete region.width;
+        delete region.height;
+    }
+    
+    if (region.shapes.length <= 1) {
+        alert('Cannot delete the last shape. Delete the entire region instead.');
+        return;
+    }
+    
+    region.shapes.splice(shapeIndex, 1);
+    updateAllRegions();
+    renderRegionForm(region);
 };
 
 window.deleteSelectedRegion = function() {

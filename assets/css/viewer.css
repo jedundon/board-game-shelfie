@@ -153,7 +153,8 @@ body:has(.viewer-container) .app-footer {
     transition: all var(--transition-base);
 }
 
-.annotation-region:hover {
+.annotation-region:hover,
+.annotation-region.region-group-hover {
     fill: rgba(74, 144, 226, 0.21);
     stroke: rgba(74, 144, 226, 1);
     stroke-width: 4;
