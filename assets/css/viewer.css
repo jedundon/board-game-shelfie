@@ -198,36 +198,51 @@ body:has(.viewer-container) .app-footer {
     font-weight: 400;
 }
 
-/* Scroll Hint Indicator */
-.scroll-hint {
+/* Navigation Buttons */
+.scroll-nav {
     position: fixed;
-    right: var(--spacing-2xl);
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.9);
-    border: 3px solid var(--color-primary);
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(74, 144, 226, 0.5);
     border-radius: var(--border-radius);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
     color: var(--color-primary);
-    font-size: 2.5rem;
-    animation: bounce-horizontal 2s infinite;
-    pointer-events: none;
-    transition: opacity 0.5s;
+    cursor: pointer;
+    transition: all 0.3s ease;
     z-index: 50;
-    box-shadow: 0 0 20px rgba(74, 144, 226, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
 }
 
-.scroll-hint.hidden {
+.scroll-nav:hover {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 15px rgba(74, 144, 226, 0.4);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.scroll-nav:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.scroll-nav-left {
+    left: var(--spacing-lg);
+}
+
+.scroll-nav-right {
+    right: var(--spacing-lg);
+}
+
+.scroll-nav.hidden {
     opacity: 0;
+    pointer-events: none;
 }
 
-@keyframes bounce-horizontal {
-    0%, 100% {
-        transform: translateY(-50%) translateX(0);
-    }
-    50% {
-        transform: translateY(-50%) translateX(15px);
-    }
+.scroll-nav svg {
+    display: block;
 }
 
 /* Empty State */
@@ -269,10 +284,21 @@ body:has(.viewer-container) .app-footer {
         width: 100%;
     }
     
-    .scroll-hint {
-        font-size: 2rem;
-        padding: var(--spacing-md);
-        right: var(--spacing-lg);
+    .scroll-nav {
+        padding: var(--spacing-sm);
+    }
+    
+    .scroll-nav-left {
+        left: var(--spacing-sm);
+    }
+    
+    .scroll-nav-right {
+        right: var(--spacing-sm);
+    }
+    
+    .scroll-nav svg {
+        width: 20px;
+        height: 20px;
     }
 }
 

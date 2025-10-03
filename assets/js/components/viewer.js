@@ -107,7 +107,16 @@ function renderViewerUI(shelfId, manifest, annotations, selectedAnnotationId) {
                 <p class="annotation-subtitle-description" id="subtitle-description"></p>
             </div>
             
-            <div class="scroll-hint" id="scroll-hint">→</div>
+            <button class="scroll-nav scroll-nav-left" id="scroll-nav-left" aria-label="Previous shelf">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <button class="scroll-nav scroll-nav-right" id="scroll-nav-right" aria-label="Next shelf">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
         </div>
         
         <!-- Game List Panel/Bottom Sheet -->
@@ -125,18 +134,86 @@ function renderViewerUI(shelfId, manifest, annotations, selectedAnnotationId) {
         </div>
     `;
     
-    // Set up scroll hint fade out and wheel scrolling
+    // Set up navigation buttons and wheel scrolling
     setTimeout(() => {
         const gallery = document.getElementById('image-grid');
-        const scrollHint = document.getElementById('scroll-hint');
+        const leftBtn = document.getElementById('scroll-nav-left');
+        const rightBtn = document.getElementById('scroll-nav-right');
         const viewerContainer = document.querySelector('.viewer-container');
         
-        if (gallery && scrollHint) {
-            gallery.addEventListener('scroll', () => {
-                if (gallery.scrollLeft > 50) {
-                    scrollHint.classList.add('hidden');
-                }
-            }, { once: true });
+        // Function to update button visibility based on scroll position
+        function updateNavButtons() {
+            if (!gallery || !leftBtn || !rightBtn) return;
+            
+            const scrollLeft = gallery.scrollLeft;
+            const maxScroll = gallery.scrollWidth - gallery.clientWidth;
+            
+            // Show/hide left button
+            if (scrollLeft <= 10) {
+                leftBtn.classList.add('hidden');
+            } else {
+                leftBtn.classList.remove('hidden');
+            }
+            
+            // Show/hide right button
+            if (scrollLeft >= maxScroll - 10) {
+                rightBtn.classList.add('hidden');
+            } else {
+                rightBtn.classList.remove('hidden');
+            }
+        }
+        
+        // Function to scroll to next/previous shelf
+        function scrollToShelf(direction) {
+            if (!gallery) return;
+            
+            const wrappers = Array.from(gallery.querySelectorAll('.image-wrapper'));
+            if (wrappers.length === 0) return;
+            
+            const scrollLeft = gallery.scrollLeft;
+            const galleryWidth = gallery.clientWidth;
+            
+            // Find the current shelf (most visible)
+            let targetWrapper;
+            if (direction === 'next') {
+                // Find the first shelf that starts after the current scroll position
+                targetWrapper = wrappers.find(wrapper => {
+                    const rect = wrapper.getBoundingClientRect();
+                    const galleryRect = gallery.getBoundingClientRect();
+                    return rect.left > galleryRect.left + 50;
+                });
+            } else {
+                // Find the last shelf that starts before the current scroll position
+                targetWrapper = wrappers.reverse().find(wrapper => {
+                    const rect = wrapper.getBoundingClientRect();
+                    const galleryRect = gallery.getBoundingClientRect();
+                    return rect.left < galleryRect.left - 50;
+                });
+            }
+            
+            if (targetWrapper) {
+                // Scroll to the target shelf
+                const targetLeft = targetWrapper.offsetLeft - 8; // Account for padding
+                gallery.scrollTo({
+                    left: targetLeft,
+                    behavior: 'smooth'
+                });
+            }
+        }
+        
+        // Set up button click handlers
+        if (leftBtn) {
+            leftBtn.addEventListener('click', () => scrollToShelf('prev'));
+        }
+        if (rightBtn) {
+            rightBtn.addEventListener('click', () => scrollToShelf('next'));
+        }
+        
+        // Update button visibility on scroll
+        if (gallery) {
+            gallery.addEventListener('scroll', updateNavButtons);
+            // Initial update
+            updateNavButtons();
         }
         
         // Convert vertical scroll wheel to horizontal scrolling
