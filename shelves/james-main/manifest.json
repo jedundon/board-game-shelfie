@@ -1,6 +1,6 @@
 {
-  "name": "James's Board Game Collection",
-  "author": "James",
+  "name": "Evilaardvark's Board Game Collection",
+  "author": "Evilaardvark",
   "description": "My personal board game collection with my unique organizational system (and some chaos)",
   "images": [
     "images/shelf1.jpg",
@@ -15,7 +15,7 @@
     {
       "id": "default",
       "name": "My Organization System",
-      "author": "James",
+      "author": "Evilaardvark",
       "file": "annotations/default.json"
     }
   ]
