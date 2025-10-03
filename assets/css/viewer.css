@@ -167,17 +167,34 @@ body:has(.viewer-container) .app-footer {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.69), rgba(0, 0, 0, 0.65));
-    padding: var(--spacing-xl) var(--spacing-2xl);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.9));
+    padding: var(--spacing-lg) var(--spacing-2xl);
     transform: translateY(100%);
     transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
     pointer-events: none;
     z-index: 100;
     border-top: 4px solid var(--color-primary);
+    cursor: pointer;
+}
+
+.annotation-subtitle:hover {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.98), rgba(0, 0, 0, 0.95));
 }
 
 .annotation-subtitle.visible {
     transform: translateY(0);
+    pointer-events: auto;
+}
+
+.annotation-subtitle-content {
+    display: flex;
+    gap: var(--spacing-xl);
+    align-items: flex-start;
+}
+
+.annotation-subtitle-text {
+    flex: 1;
+    min-width: 0;
 }
 
 .annotation-subtitle-label {
@@ -190,12 +207,41 @@ body:has(.viewer-container) .app-footer {
 }
 
 .annotation-subtitle-description {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: #ffffff;
-    margin: 0;
+    margin: 0 0 var(--spacing-md) 0;
     line-height: 1.6;
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9);
     font-weight: 400;
+}
+
+.annotation-subtitle-games {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    flex: 1;
+    align-items: center;
+}
+
+.subtitle-game-tag {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(74, 144, 226, 0.2);
+    border: 1px solid rgba(74, 144, 226, 0.4);
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.subtitle-game-more {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 /* Navigation Buttons */
@@ -262,12 +308,25 @@ body:has(.viewer-container) .app-footer {
         padding: var(--spacing-lg) var(--spacing-lg);
     }
     
+    .annotation-subtitle {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+    
+    .annotation-subtitle-content {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
     .annotation-subtitle-label {
         font-size: 1.5rem;
     }
     
     .annotation-subtitle-description {
-        font-size: 1.125rem;
+        font-size: 1rem;
+    }
+    
+    .subtitle-game-tag {
+        font-size: 0.8rem;
     }
     
     .viewer-header {

@@ -103,8 +103,13 @@ function renderViewerUI(shelfId, manifest, annotations, selectedAnnotationId) {
             </div>
             
             <div class="annotation-subtitle" id="annotation-subtitle">
-                <h3 class="annotation-subtitle-label" id="subtitle-label"></h3>
-                <p class="annotation-subtitle-description" id="subtitle-description"></p>
+                <div class="annotation-subtitle-content">
+                    <div class="annotation-subtitle-text">
+                        <h3 class="annotation-subtitle-label" id="subtitle-label"></h3>
+                        <p class="annotation-subtitle-description" id="subtitle-description"></p>
+                    </div>
+                    <div class="annotation-subtitle-games" id="subtitle-games"></div>
+                </div>
             </div>
             
             <button class="scroll-nav scroll-nav-left" id="scroll-nav-left" aria-label="Previous shelf">
@@ -311,6 +316,13 @@ function createTooltip() {
     document.addEventListener('mouseover', handleRegionHover);
     document.addEventListener('mouseout', handleRegionLeave);
     
+    // Make subtitle banner clickable
+    const subtitle = document.getElementById('annotation-subtitle');
+    if (subtitle) {
+        subtitle.style.cursor = 'pointer';
+        subtitle.style.pointerEvents = 'auto';
+    }
+    
     // Set up click handlers for game list panel
     document.addEventListener('click', handleRegionClick);
     
@@ -326,11 +338,21 @@ function handleRegionHover(e) {
     const label = e.target.dataset.label;
     const description = e.target.dataset.description;
     const regionId = e.target.dataset.regionId;
+    const gamesData = e.target.dataset.games;
+    
+    // Parse games data
+    let games = [];
+    try {
+        const decodedData = decodeHtmlEntities(gamesData || '[]');
+        games = JSON.parse(decodedData);
+    } catch (error) {
+        console.error('Failed to parse games data:', error);
+    }
     
     // Highlight all shapes in the same region group
     highlightRegionGroup(regionId, true);
     
-    showSubtitle(label, description);
+    showSubtitle(label, description, games);
 }
 
 function handleRegionLeave(e) {
@@ -356,14 +378,35 @@ function highlightRegionGroup(regionId, highlight) {
     });
 }
 
-function showSubtitle(label, description) {
+function showSubtitle(label, description, games = []) {
     const subtitle = document.getElementById('annotation-subtitle');
     const labelEl = document.getElementById('subtitle-label');
     const descriptionEl = document.getElementById('subtitle-description');
+    const gamesEl = document.getElementById('subtitle-games');
     
-    if (subtitle && labelEl && descriptionEl) {
+    if (subtitle && labelEl && descriptionEl && gamesEl) {
         labelEl.textContent = label;
         descriptionEl.textContent = description || '';
+        
+        // Show preview of first 6 games
+        const previewCount = 6;
+        const gamesToShow = games.slice(0, previewCount);
+        const hasMore = games.length > previewCount;
+        
+        if (gamesToShow.length > 0) {
+            gamesEl.innerHTML = gamesToShow.map(game => 
+                `<span class="subtitle-game-tag">${escapeHtml(game)}</span>`
+            ).join('');
+            
+            if (hasMore) {
+                gamesEl.innerHTML += `<span class="subtitle-game-more">+${games.length - previewCount} more</span>`;
+            }
+            
+            gamesEl.style.display = 'flex';
+        } else {
+            gamesEl.style.display = 'none';
+        }
+        
         subtitle.classList.add('visible');
     }
 }
